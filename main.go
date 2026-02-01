@@ -1,18 +1,24 @@
 package main
 
 import (
-	stlerr "github.com/kkkunny/stl/error"
-	"github.com/labstack/echo/v5"
-
 	"github.com/kkkunny/MDM/config"
+	"github.com/kkkunny/MDM/service/http"
+	"github.com/kkkunny/MDM/service/xunlei"
 )
 
+func Run() error {
+	errChan := make(chan error)
+	go func() {
+		errChan <- http.Run()
+	}()
+	go func() {
+		errChan <- xunlei.Run()
+	}()
+	return <-errChan
+}
+
 func main() {
-	svr := echo.New()
-
-	Route(svr.Group(""))
-
-	if err := stlerr.ErrorWrap(svr.Start(":8080")); err != nil {
+	if err := Run(); err != nil {
 		config.Logger.Panic(err)
 		panic(err)
 	}
