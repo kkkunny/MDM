@@ -31,7 +31,7 @@ func RunXunlei() (<-chan struct{}, <-chan error) {
 		t := time.NewTicker(time.Second)
 		defer t.Stop()
 		for _ = range t.C {
-			_, err := xunlei.Client.ListTasks(context.Background())
+			_, err := xunlei.Client.Version(context.Background())
 			if err != nil {
 				continue
 			}
