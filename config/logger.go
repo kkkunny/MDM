@@ -4,4 +4,7 @@ import (
 	stllog "github.com/kkkunny/stl/log"
 )
 
-var Logger = stllog.Default(true)
+var (
+	Logger   = stllog.Default(true)
+	XLLogger = Logger.NewGroup("xunlei")
+)

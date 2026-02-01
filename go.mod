@@ -3,6 +3,7 @@ module github.com/kkkunny/MDM
 go 1.25.6
 
 require (
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/kkkunny/stl v0.0.0-20260131180005-49b3dc7a6c0d
 	github.com/kkkunny/xunlei v0.0.0-20250830075411-38e5dcf085c1
 	github.com/labstack/echo/v5 v5.0.1

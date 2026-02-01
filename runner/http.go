@@ -1,7 +1,10 @@
 package runner
 
 import (
+	"log/slog"
+	"math"
 	"net/http"
+	"os"
 	"time"
 
 	stlerr "github.com/kkkunny/stl/error"
@@ -16,6 +19,7 @@ func init() {
 
 func RunHttp() (<-chan struct{}, <-chan error) {
 	svr := echo.New()
+	svr.Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.Level(math.MaxInt)}))
 
 	route(svr.Group(""))
 
