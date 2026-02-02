@@ -58,4 +58,9 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 
 func route(root *echo.Group) {
 	root.GET("/ping", handler.Ping)
+
+	task := root.Group("/task")
+	{
+		task.GET("/list", handler.TaskList)
+	}
 }

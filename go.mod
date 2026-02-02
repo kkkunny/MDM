@@ -7,6 +7,7 @@ require (
 	github.com/kkkunny/stl v0.0.0-20260131180005-49b3dc7a6c0d
 	github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24
 	github.com/labstack/echo/v5 v5.0.1
+	google.golang.org/protobuf v1.34.1
 )
 
 require (

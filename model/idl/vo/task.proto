@@ -1,0 +1,30 @@
+syntax = "proto3";
+package task;
+option go_package = "./vo";
+
+// 任务信息
+message Task {
+  string id = 1;
+  string name = 2;
+  TaskPhase phase = 3;
+  uint64 size = 4;  // 文件大小，单位byte
+
+  optional DownloadStatus Download = 50;
+}
+
+// 任务阶段
+enum TaskPhase {
+  Unknown = 0;
+  Pending = 1;
+  Running = 2;
+  Paused = 3;
+  Error = 4;
+  Completed = 5;
+  Deleted = 6;
+}
+
+// 下载状态
+message DownloadStatus {
+  uint64 speed = 1;  // 下载速度，单位byte/s
+  uint64 progress = 2;  // 下载进度，单位byte
+}
