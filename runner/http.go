@@ -33,7 +33,7 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 		defer t.Stop()
 		for _ = range t.C {
 			ok := func() bool {
-				resp, err := http.Get(fmt.Sprintf("http://localhost%s/ping", stlval.Ternary(config.Release, "", ":8080")))
+				resp, err := http.Get(fmt.Sprintf("http://localhost%s/api/ping", stlval.Ternary(config.Release, "", ":8080")))
 				if err != nil {
 					return false
 				}
@@ -60,10 +60,15 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 }
 
 func route(root *echo.Group) {
-	root.GET("/ping", handler.Ping)
+	root.Static("/", "static")
 
-	task := root.Group("/task")
+	api := root.Group("/api")
 	{
-		task.GET("/list", handler.TaskList)
+		api.GET("/ping", handler.Ping)
+
+		task := api.Group("/task")
+		{
+			task.GET("/list", handler.TaskList)
+		}
 	}
 }
