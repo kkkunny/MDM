@@ -5,6 +5,6 @@ import (
 )
 
 var (
-	Logger   = stllog.Default(true)
+	Logger   = stllog.Default(!Release)
 	XLLogger = Logger.NewGroup("xunlei")
 )

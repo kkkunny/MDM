@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fmt"
 	"log/slog"
 	"math"
 	"net/http"
@@ -8,8 +9,10 @@ import (
 	"time"
 
 	stlerr "github.com/kkkunny/stl/error"
+	stlval "github.com/kkkunny/stl/value"
 	"github.com/labstack/echo/v5"
 
+	"github.com/kkkunny/MDM/config"
 	"github.com/kkkunny/MDM/handler"
 )
 
@@ -30,7 +33,7 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 		defer t.Stop()
 		for _ = range t.C {
 			ok := func() bool {
-				resp, err := http.Get("http://localhost/ping")
+				resp, err := http.Get(fmt.Sprintf("http://localhost%s/ping", stlval.Ternary(config.Release, "", ":8080")))
 				if err != nil {
 					return false
 				}
@@ -50,7 +53,7 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 	errCh := make(chan error)
 	go func() {
 		defer close(errCh)
-		errCh <- stlerr.ErrorWrap(svr.Start(":80"))
+		errCh <- stlerr.ErrorWrap(svr.Start(fmt.Sprintf(":%d", stlval.Ternary(config.Release, 80, 8080))))
 	}()
 
 	return succCh, errCh

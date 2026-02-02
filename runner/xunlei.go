@@ -20,11 +20,6 @@ func init() {
 }
 
 func RunXunlei() (<-chan struct{}, <-chan error) {
-	cmder := exec.Command("/bin/xlp")
-	outputer := new(xunleiOutputer)
-	cmder.Stdout = outputer
-	cmder.Stderr = outputer
-
 	succCh := make(chan struct{})
 	go func() {
 		defer close(succCh)
@@ -39,9 +34,17 @@ func RunXunlei() (<-chan struct{}, <-chan error) {
 		}
 	}()
 
+	if !config.Release {
+		return succCh, make(chan error)
+	}
+
 	errCh := make(chan error)
 	go func() {
 		defer close(errCh)
+		cmder := exec.Command("/bin/xlp")
+		outputer := new(xunleiOutputer)
+		cmder.Stdout = outputer
+		cmder.Stderr = outputer
 		errCh <- stlerr.ErrorWrap(cmder.Run())
 	}()
 
