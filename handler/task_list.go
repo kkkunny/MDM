@@ -17,7 +17,7 @@ func TaskList(c *echo.Context) error {
 	ctx := c.Request().Context()
 	xlTasks, err := stlerr.ErrorWith(xunlei.Client.ListTasks(ctx))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return err
 	}
 	tasks := stlslices.Map(xlTasks, func(_ int, xlTask *xldto.TaskInfo) *vo.Task {
 		return dto.TaskFromXunlei(xlTask).VO()

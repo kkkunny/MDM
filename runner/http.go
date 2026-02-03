@@ -14,6 +14,7 @@ import (
 
 	"github.com/kkkunny/MDM/config"
 	"github.com/kkkunny/MDM/handler"
+	"github.com/kkkunny/MDM/middleware"
 )
 
 func init() {
@@ -60,6 +61,11 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 }
 
 func route(root *echo.Group) {
+	root.Use(
+		middleware.Logger,
+		middleware.Recover,
+	)
+
 	root.Static("/", "static")
 
 	api := root.Group("/api")

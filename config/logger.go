@@ -5,6 +5,7 @@ import (
 )
 
 var (
-	Logger   = stllog.Default(!Release)
-	XLLogger = Logger.NewGroup("xunlei")
+	Logger     = stllog.Default(!Release)
+	XLLogger   = Logger.NewGroup("XUNLEI")
+	HttpLogger = Logger.NewGroup("HTTP")
 )

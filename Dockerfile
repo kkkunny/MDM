@@ -10,5 +10,6 @@ FROM cnk3x/xunlei:v3.20.2 AS final
 
 WORKDIR /mdm
 COPY --from=builder /mdm/output/* /mdm
+COPY --from=builder /mdm/static /mdm/static
 EXPOSE 80
 ENTRYPOINT ["/mdm/mdm"]
