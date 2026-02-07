@@ -2,6 +2,7 @@ package dto
 
 import (
 	"regexp"
+	"time"
 
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlos "github.com/kkkunny/stl/os"
@@ -12,13 +13,20 @@ import (
 
 // Task 任务信息
 type Task interface {
+	CreatedTime() time.Time
 	VO() *vo.Task
 }
 
-type xlTask dto.TaskInfo
+type xlTask struct {
+	*dto.TaskInfo
+}
 
 func TaskFromXunlei(t *dto.TaskInfo) Task {
-	return (*xlTask)(t)
+	return &xlTask{TaskInfo: t}
+}
+
+func (t xlTask) CreatedTime() time.Time {
+	return t.TaskInfo.CreatedTime
 }
 
 func covertXunleiPhase2VO(phase dto.TaskPhase) vo.TaskPhase {
@@ -45,7 +53,7 @@ func (t xlTask) VO() *vo.Task {
 		Id:        t.ID,
 		Phase:     covertXunleiPhase2VO(t.Phase),
 		Size:      uint64(stlos.Byte * stlos.Size(t.FileSize)),
-		CreatedAt: uint64(t.CreatedTime.Unix()),
+		CreatedAt: uint64(t.CreatedTime().Unix()),
 	}
 	categoryMatches := xlTaskCategoryMatch.FindAllStringSubmatch(t.Name, -1)
 	if len(categoryMatches) > 0 {

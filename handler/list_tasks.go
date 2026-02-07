@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"cmp"
 	"net/http"
+	"slices"
 
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
@@ -27,6 +29,14 @@ func ListTasks(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
+	tasks := stlslices.Map(xlTasks, func(_ int, xlt *xldto.TaskInfo) dto.Task {
+		return dto.TaskFromXunlei(xlt)
+	})
+
+	slices.SortFunc(tasks, func(i, j dto.Task) int {
+		return -cmp.Compare(i.CreatedTime().UnixNano(), j.CreatedTime().UnixNano())
+	})
+
 	if index := (req.GetPage() - 1) * req.GetCount(); index < uint32(len(xlTasks)) {
 		xlTasks = xlTasks[index:]
 		if uint32(len(xlTasks)) > req.GetCount() {
@@ -35,9 +45,7 @@ func ListTasks(c *echo.Context) error {
 	}
 	c.Response().Header().Set("Access-Control-Allow-Origin", "*")
 	return c.JSON(http.StatusOK, &vo.ListTasksResponse{
-		Tasks: stlslices.Map(xlTasks, func(_ int, xlTask *xldto.TaskInfo) *vo.Task {
-			return dto.TaskFromXunlei(xlTask).VO()
-		}),
+		Tasks:   stlslices.Map(tasks, func(_ int, t dto.Task) *vo.Task { return t.VO() }),
 		HasMore: uint32(len(xlTasks)) > req.GetPage()*req.GetCount(),
 	})
 }
