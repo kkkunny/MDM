@@ -8,23 +8,65 @@ message Task {
   string name = 2;
   TaskPhase phase = 3;
   uint64 size = 4;  // 文件大小，单位byte
+  optional Category category = 5;
+  uint64 created_at = 6;  // 创建时间戳，单位秒
 
-  optional DownloadStatus Download = 50;
+  optional DownloadStats download_stats = 50;
+}
+
+// 类别
+message Category{
+  string name = 1;
+  string icon = 2;
 }
 
 // 任务阶段
 enum TaskPhase {
-  Unknown = 0;
-  Pending = 1;
-  Running = 2;
-  Paused = 3;
-  Error = 4;
-  Completed = 5;
-  Deleted = 6;
+  TpUnknown = 0;
+  TpDownWaiting = 1;
+  TpDownRunning = 2;
+  TpDownPaused = 3;
+  TpDownFailed = 4;
+  TpDownCompleted = 5;
 }
 
 // 下载状态
-message DownloadStatus {
+message DownloadStats {
   uint64 speed = 1;  // 下载速度，单位byte/s
   uint64 progress = 2;  // 下载进度，单位byte
+}
+
+message ListTasksRequest {
+  // @gotags: query:"page"
+  uint32 page = 1;
+  // @gotags: query:"count"
+  uint32 count = 2;
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+  bool has_more = 2;
+}
+
+message CreateTaskRequest {
+  string link = 1;  // 下载链接
+  string name = 10;
+  optional string category = 11;
+}
+
+message CreateTaskResponse {
+  string id = 1;
+}
+
+// 操作行为
+enum Operate {
+  OpUnknown = 0;
+  OpDelete = 1;
+  OpContinue = 2;
+  OpPause = 3;
+}
+
+message OperateTasksRequest {
+  repeated string ids = 1;
+  Operate operate = 2;
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/kkkunny/MDM/config"
 	"github.com/kkkunny/MDM/handler"
 	"github.com/kkkunny/MDM/middleware"
+	"github.com/kkkunny/MDM/util"
 )
 
 func init() {
@@ -24,6 +25,7 @@ func init() {
 func RunHttp() (<-chan struct{}, <-chan error) {
 	svr := echo.New()
 	svr.Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.Level(math.MaxInt)}))
+	svr.Validator = util.NewValidator()
 
 	route(svr.Group(""))
 
@@ -62,6 +64,7 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 
 func route(root *echo.Group) {
 	root.Use(
+		middleware.Response,
 		middleware.Logger,
 		middleware.Recover,
 	)
@@ -74,7 +77,9 @@ func route(root *echo.Group) {
 
 		task := api.Group("/task")
 		{
-			task.GET("/list", handler.TaskList)
+			task.GET("/list", handler.ListTasks)
+			task.POST("/create", handler.CreateTask)
+			task.POST("/operate", handler.OperateTasks)
 		}
 	}
 }
