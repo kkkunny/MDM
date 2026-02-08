@@ -52,7 +52,7 @@ func (t xlTask) VO() *vo.Task {
 	vt := &vo.Task{
 		Id:        t.ID,
 		Phase:     covertXunleiPhase2VO(t.Phase),
-		Size:      uint64(stlos.Byte * stlos.Size(t.FileSize)),
+		Size:      uint64(stlos.Size(t.FileSize)),
 		CreatedAt: uint64(t.CreatedTime().Unix()),
 	}
 	categoryMatches := xlTaskCategoryMatch.FindAllStringSubmatch(t.Name, -1)
@@ -67,11 +67,12 @@ func (t xlTask) VO() *vo.Task {
 	if stlslices.Contain([]dto.TaskPhase{
 		dto.TaskPhaseTypePending,
 		dto.TaskPhaseTypeRunning,
+		dto.TaskPhaseTypeComplete,
 		dto.TaskPhaseTypePaused,
 		dto.TaskPhaseTypeError,
 	}, t.Phase) {
 		vt.DownloadStats = &vo.DownloadStats{
-			Speed:    uint64(stlos.Byte * stlos.Size(t.Speed)),
+			Speed:    uint64(stlos.Size(t.Speed)),
 			Progress: vt.Size * uint64(t.Progress) / 100,
 		}
 	}
