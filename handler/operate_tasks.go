@@ -33,7 +33,7 @@ func OperateTasks(c *echo.Context) error {
 		if err != nil {
 			return err
 		}
-	case vo.Operate_OpContinue:
+	case vo.Operate_OpResume:
 		var eg errgroup.Group
 		for _, id := range req.GetIds() {
 			eg.Go(func() error {

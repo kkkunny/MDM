@@ -62,7 +62,7 @@ message CreateTaskResponse {
 enum Operate {
   OpUnknown = 0;
   OpDelete = 1;
-  OpContinue = 2;
+  OpResume = 2;
   OpPause = 3;
 }
 

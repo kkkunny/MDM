@@ -84,10 +84,10 @@ func (TaskPhase) EnumDescriptor() ([]byte, []int) {
 type Operate int32
 
 const (
-	Operate_OpUnknown  Operate = 0
-	Operate_OpDelete   Operate = 1
-	Operate_OpContinue Operate = 2
-	Operate_OpPause    Operate = 3
+	Operate_OpUnknown Operate = 0
+	Operate_OpDelete  Operate = 1
+	Operate_OpResume  Operate = 2
+	Operate_OpPause   Operate = 3
 )
 
 // Enum value maps for Operate.
@@ -95,14 +95,14 @@ var (
 	Operate_name = map[int32]string{
 		0: "OpUnknown",
 		1: "OpDelete",
-		2: "OpContinue",
+		2: "OpResume",
 		3: "OpPause",
 	}
 	Operate_value = map[string]int32{
-		"OpUnknown":  0,
-		"OpDelete":   1,
-		"OpContinue": 2,
-		"OpPause":    3,
+		"OpUnknown": 0,
+		"OpDelete":  1,
+		"OpResume":  2,
+		"OpPause":   3,
 	}
 )
 
@@ -641,12 +641,11 @@ const file_task_proto_rawDesc = "" +
 	"\rTpDownRunning\x10\x02\x12\x10\n" +
 	"\fTpDownPaused\x10\x03\x12\x10\n" +
 	"\fTpDownFailed\x10\x04\x12\x13\n" +
-	"\x0fTpDownCompleted\x10\x05*C\n" +
+	"\x0fTpDownCompleted\x10\x05*A\n" +
 	"\aOperate\x12\r\n" +
 	"\tOpUnknown\x10\x00\x12\f\n" +
-	"\bOpDelete\x10\x01\x12\x0e\n" +
-	"\n" +
-	"OpContinue\x10\x02\x12\v\n" +
+	"\bOpDelete\x10\x01\x12\f\n" +
+	"\bOpResume\x10\x02\x12\v\n" +
 	"\aOpPause\x10\x03B\x06Z\x04./vob\x06proto3"
 
 var (
