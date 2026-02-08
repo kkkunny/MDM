@@ -26,6 +26,7 @@ func RunHttp() (<-chan struct{}, <-chan error) {
 	svr := echo.New()
 	svr.Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.Level(math.MaxInt)}))
 	svr.Validator = util.NewValidator()
+	svr.JSONSerializer = new(util.ProtobufJsonEchoSerializer)
 
 	route(svr.Group(""))
 

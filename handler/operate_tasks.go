@@ -56,7 +56,7 @@ func OperateTasks(c *echo.Context) error {
 			return err
 		}
 	default:
-		return util.NewHttpError(http.StatusBadRequest, err)
+		return stlerr.Errorf("unknown operate")
 	}
 	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
 }

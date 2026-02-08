@@ -43,7 +43,6 @@ func ListTasks(c *echo.Context) error {
 			xlTasks = xlTasks[:req.GetCount()]
 		}
 	}
-	c.Response().Header().Set("Access-Control-Allow-Origin", "*")
 	return c.JSON(http.StatusOK, &vo.ListTasksResponse{
 		Tasks:   stlslices.Map(tasks, func(_ int, t dto.Task) *vo.Task { return t.VO() }),
 		HasMore: uint32(len(xlTasks)) > req.GetPage()*req.GetCount(),
