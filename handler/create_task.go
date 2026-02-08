@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	stlerr "github.com/kkkunny/stl/error"
@@ -21,8 +20,8 @@ func CreateTask(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, err)
 	}
 
-	name := fmt.Sprintf("[%s]%s", req.GetCategory(), req.GetName())
-	xlTask, err := stlerr.ErrorWith(xunlei.Client.CreateTask(ctx, name, req.GetLink()))
+	// name := fmt.Sprintf("[%s]%s", req.GetCategory(), req.GetName())
+	xlTask, err := stlerr.ErrorWith(xunlei.Client.CreateTask(ctx, req.GetName(), req.GetLink()))
 	if err != nil {
 		return err
 	}
