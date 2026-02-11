@@ -3,7 +3,9 @@ package handler
 import (
 	"net/http"
 
+	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
+	"github.com/kkkunny/xunlei/dto"
 	"github.com/labstack/echo/v5"
 	"golang.org/x/sync/errgroup"
 
@@ -49,6 +51,32 @@ func OperateTasks(c *echo.Context) error {
 		for _, id := range req.GetIds() {
 			eg.Go(func() error {
 				return stlerr.ErrorWrap(xunlei.Client.PauseTask(ctx, id))
+			})
+		}
+		err = eg.Wait()
+		if err != nil {
+			return err
+		}
+	case vo.Operate_OpRetry:
+		var eg errgroup.Group
+		for _, id := range req.GetIds() {
+			eg.Go(func() error {
+				tasks, err := stlerr.ErrorWith(xunlei.Client.ListTasks(ctx, dto.TaskPhaseTypeError))
+				if err != nil {
+					return err
+				}
+				task, ok := stlslices.FindFirst(tasks, func(_ int, task *dto.TaskInfo) bool {
+					return task.ID == id
+				})
+				if !ok {
+					return stlerr.Errorf("task not found, id=%s", id)
+				}
+				err = xunlei.Client.DeleteTask(ctx, task.ID, false)
+				if err != nil {
+					return err
+				}
+				_, err = stlerr.ErrorWith(xunlei.Client.CreateTask(ctx, task.Name, task.ID))
+				return err
 			})
 		}
 		err = eg.Wait()

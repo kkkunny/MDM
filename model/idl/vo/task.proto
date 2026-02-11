@@ -61,9 +61,10 @@ message CreateTaskResponse {
 // 操作行为
 enum Operate {
   OpUnknown = 0;
-  OpDelete = 1;
-  OpResume = 2;
-  OpPause = 3;
+  OpDelete = 1;  // 删除
+  OpResume = 2;  // 恢复下载
+  OpPause = 3;  // 暂停
+  OpRetry = 4;  // 失败重试
 }
 
 message OperateTasksRequest {
