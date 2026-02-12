@@ -75,7 +75,7 @@ func OperateTasks(c *echo.Context) error {
 				if err != nil {
 					return err
 				}
-				_, err = stlerr.ErrorWith(xunlei.Client.CreateTask(ctx, task.Name, task.ID))
+				_, err = stlerr.ErrorWith(xunlei.Client.CreateTask(ctx, task.Name, task.URL))
 				return err
 			})
 		}
