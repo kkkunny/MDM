@@ -9,15 +9,15 @@ import (
 var Client *qbittorrent.Client
 
 func init() {
-	qbAddr := os.Getenv("QB_ADDR")
-	qbUser := os.Getenv("QB_USER")
-	qbPass := os.Getenv("QB_PASS")
-	if qbAddr == "" || qbUser == "" || qbPass == "" {
+	addr := os.Getenv("QB_ADDR")
+	user := os.Getenv("QB_USER")
+	pass := os.Getenv("QB_PASS")
+	if addr == "" || user == "" || pass == "" {
 		panic("qbittorrent client not configured")
 	}
 	Client = qbittorrent.NewClient(qbittorrent.Config{
-		Host:     qbAddr,
-		Username: qbUser,
-		Password: qbPass,
+		Host:     addr,
+		Username: user,
+		Password: pass,
 	})
 }

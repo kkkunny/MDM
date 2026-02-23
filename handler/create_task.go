@@ -21,7 +21,10 @@ func CreateTask(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, err)
 	}
 
-	name := fmt.Sprintf("[[%s]]|%s", req.GetCategory(), req.GetName())
+	name := req.GetName()
+	if req.GetCategory() != "" {
+		name = fmt.Sprintf("[[%s]]|%s", req.GetCategory(), req.GetName())
+	}
 	xlTask, err := stlerr.ErrorWith(xl.Client.CreateTask(ctx, name, req.GetLink()))
 	if err != nil {
 		return err

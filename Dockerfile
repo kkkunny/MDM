@@ -1,15 +1,17 @@
 FROM golang:1.25.6-alpine3.22 AS builder
 
 ENV GOPROXY=https://goproxy.cn,direct
-WORKDIR /mdm
+WORKDIR /app
 COPY . .
 RUN go build --tags release -o output/mdm .
 
 
-FROM cnk3x/xunlei:v3.20.2 AS final
+FROM alpine:3.22 AS final
 
-WORKDIR /mdm
-COPY --from=builder /mdm/output/* /mdm
-COPY --from=builder /mdm/static /mdm/static
+WORKDIR /app
+COPY --from=builder /app/output/* /app
+COPY --from=builder /app/static /app/static
+
 EXPOSE 80
-ENTRYPOINT ["/mdm/mdm"]
+
+ENTRYPOINT ["/app/mdm"]
