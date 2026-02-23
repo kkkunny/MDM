@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"slices"
 
+	"github.com/autobrr/go-qbittorrent"
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
 	xldto "github.com/kkkunny/xunlei/dto"
 	"github.com/labstack/echo/v5"
 
-	"github.com/kkkunny/MDM/dal/xunlei"
+	"github.com/kkkunny/MDM/dal/qb"
+	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
 	"github.com/kkkunny/MDM/model/vo"
 	"github.com/kkkunny/MDM/util"
@@ -25,26 +27,47 @@ func ListTasks(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, err)
 	}
 
-	xlTasks, err := stlerr.ErrorWith(xunlei.Client.ListTasks(ctx))
+	var hasMore bool
+
+	// 从迅雷获取
+	xlTasks, err := stlerr.ErrorWith(xl.Client.ListTasks(ctx))
 	if err != nil {
 		return err
 	}
 	tasks := stlslices.Map(xlTasks, func(_ int, xlt *xldto.TaskInfo) dto.Task {
-		return dto.TaskFromXunlei(xlt)
+		return dto.TaskFromXL(xlt)
 	})
-
 	slices.SortFunc(tasks, func(i, j dto.Task) int {
-		return -cmp.Compare(i.CreatedTime().UnixNano(), j.CreatedTime().UnixNano())
+		return -cmp.Compare(i.CreatedAt().UnixNano(), j.CreatedAt().UnixNano())
 	})
+	hasMore = len(tasks) > int(req.GetPage())*int(req.GetCount())
+	xlNeeds := max(len(tasks)-int(req.GetPage()-1)*int(req.GetCount()), 0)
+	tasks = tasks[len(tasks)-xlNeeds:]
 
-	if index := (req.GetPage() - 1) * req.GetCount(); index < uint32(len(xlTasks)) {
-		xlTasks = xlTasks[index:]
-		if uint32(len(xlTasks)) > req.GetCount() {
-			xlTasks = xlTasks[:req.GetCount()]
+	// 从qb获取
+	qbNeeds := int(req.GetCount()) - xlNeeds
+	qbSkips := max(int(req.GetPage()-1)*int(req.GetCount())-len(xlTasks), 0)
+	if qbNeeds > 0 || !hasMore {
+		qbTasks, err := stlerr.ErrorWith(qb.Client.GetTorrentsCtx(ctx, qbittorrent.TorrentFilterOptions{
+			Limit:   qbNeeds + 1,
+			Offset:  qbSkips,
+			Sort:    "added_on",
+			Reverse: true,
+		}))
+		if err != nil {
+			return err
+		}
+		tasks = append(tasks, stlslices.Map(qbTasks, func(_ int, qbt qbittorrent.Torrent) dto.Task {
+			return dto.TaskFromQB(&qbt)
+		})...)
+		if len(tasks) > int(req.GetCount()) {
+			hasMore = true
+			tasks = tasks[:int(req.GetCount())]
 		}
 	}
+
 	return c.JSON(http.StatusOK, &vo.ListTasksResponse{
-		Tasks:   stlslices.Map(tasks, func(_ int, t dto.Task) *vo.Task { return t.VO() }),
-		HasMore: uint32(len(xlTasks)) > req.GetPage()*req.GetCount(),
+		Tasks:   stlslices.Map(tasks, func(_ int, t dto.Task) *vo.Task { return t.ToVO() }),
+		HasMore: hasMore,
 	})
 }

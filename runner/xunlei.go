@@ -12,7 +12,7 @@ import (
 	stlerr "github.com/kkkunny/stl/error"
 
 	"github.com/kkkunny/MDM/config"
-	"github.com/kkkunny/MDM/dal/xunlei"
+	"github.com/kkkunny/MDM/dal/xl"
 )
 
 func init() {
@@ -26,7 +26,7 @@ func RunXunlei() (<-chan struct{}, <-chan error) {
 		t := time.NewTicker(time.Second)
 		defer t.Stop()
 		for _ = range t.C {
-			_, err := xunlei.Client.Version(context.Background())
+			_, err := xl.Client.Version(context.Background())
 			if err != nil {
 				continue
 			}

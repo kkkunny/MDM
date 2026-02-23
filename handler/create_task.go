@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	stlerr "github.com/kkkunny/stl/error"
 	"github.com/labstack/echo/v5"
 
-	"github.com/kkkunny/MDM/dal/xunlei"
+	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/vo"
 	"github.com/kkkunny/MDM/util"
 )
@@ -20,8 +21,8 @@ func CreateTask(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, err)
 	}
 
-	// name := fmt.Sprintf("[%s]%s", req.GetCategory(), req.GetName())
-	xlTask, err := stlerr.ErrorWith(xunlei.Client.CreateTask(ctx, req.GetName(), req.GetLink()))
+	name := fmt.Sprintf("[[%s]]|%s", req.GetCategory(), req.GetName())
+	xlTask, err := stlerr.ErrorWith(xl.Client.CreateTask(ctx, name, req.GetLink()))
 	if err != nil {
 		return err
 	}

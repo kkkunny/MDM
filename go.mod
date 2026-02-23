@@ -4,15 +4,19 @@ go 1.25.6
 
 require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
+	github.com/autobrr/go-qbittorrent v1.14.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/kkkunny/stl v0.0.0-20260131180005-49b3dc7a6c0d
 	github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24
-	github.com/labstack/echo/v5 v5.0.1
+	github.com/labstack/echo/v5 v5.0.4
+	golang.org/x/sync v0.19.0
 	google.golang.org/protobuf v1.34.1
 )
 
 require (
+	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -38,7 +42,6 @@ require (
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect

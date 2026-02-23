@@ -1,4 +1,4 @@
-package xunlei
+package xl
 
 import (
 	"fmt"
