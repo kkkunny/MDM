@@ -10,7 +10,6 @@ import (
 	"github.com/kkkunny/xunlei/dto"
 
 	"github.com/kkkunny/MDM/model/vo"
-	"github.com/kkkunny/MDM/util"
 )
 
 // Task 任务信息
@@ -111,7 +110,7 @@ func covertQBPhase2VO(state qbittorrent.TorrentState) vo.TaskPhase {
 
 func (t qbTask) ToVO() *vo.Task {
 	vt := &vo.Task{
-		Id:        util.MD5(fmt.Sprintf("QB|%s", t.Hash)),
+		Id:        fmt.Sprintf("QB|%s", t.Hash),
 		Name:      t.Name,
 		Phase:     covertQBPhase2VO(t.State),
 		Size:      uint64(t.Size),
