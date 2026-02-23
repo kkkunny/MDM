@@ -33,7 +33,7 @@ func (t xlTask) CreatedAt() time.Time {
 func covertXLPhase2VO(phase dto.TaskPhase) vo.TaskPhase {
 	switch phase {
 	case dto.TaskPhaseTypePending:
-		return vo.TaskPhase_TpDownWaiting
+		return vo.TaskPhase_TpDownQueued
 	case dto.TaskPhaseTypeRunning:
 		return vo.TaskPhase_TpDownRunning
 	case dto.TaskPhaseTypePaused:
@@ -65,16 +65,16 @@ func (t xlTask) ToVO() *vo.Task {
 	} else {
 		vt.Name = t.Name
 	}
-	if stlslices.Contain([]dto.TaskPhase{
-		dto.TaskPhaseTypePending,
-		dto.TaskPhaseTypeRunning,
-		dto.TaskPhaseTypeComplete,
-		dto.TaskPhaseTypePaused,
-		dto.TaskPhaseTypeError,
-	}, t.Phase) {
+	if stlslices.Contain([]vo.TaskPhase{
+		vo.TaskPhase_TpDownQueued,
+		vo.TaskPhase_TpDownRunning,
+		vo.TaskPhase_TpDownPaused,
+		vo.TaskPhase_TpDownFailed,
+		vo.TaskPhase_TpDownCompleted,
+	}, vt.Phase) {
 		vt.DownloadStats = &vo.DownloadStats{
-			Speed:    uint64(t.Speed),
-			Progress: vt.Size * uint64(t.Progress) / 100,
+			Speed: uint64(t.Speed),
+			Size:  vt.Size * uint64(t.Progress) / 100,
 		}
 	}
 	return vt
@@ -95,14 +95,24 @@ func (t qbTask) CreatedAt() time.Time {
 func covertQBPhase2VO(state qbittorrent.TorrentState) vo.TaskPhase {
 	switch state {
 	case qbittorrent.TorrentStateQueuedDl:
-		return vo.TaskPhase_TpDownWaiting
+		return vo.TaskPhase_TpDownQueued
 	case qbittorrent.TorrentStateAllocating, qbittorrent.TorrentStateDownloading, qbittorrent.TorrentStateMetaDl,
 		qbittorrent.TorrentStateStalledDl, qbittorrent.TorrentStateCheckingDl, qbittorrent.TorrentStateForcedDl:
 		return vo.TaskPhase_TpDownRunning
 	case qbittorrent.TorrentStatePausedDl, qbittorrent.TorrentStateStoppedDl:
 		return vo.TaskPhase_TpDownPaused
-	case qbittorrent.TorrentStateError, qbittorrent.TorrentStateMissingFiles:
+	case qbittorrent.TorrentStateError:
 		return vo.TaskPhase_TpDownFailed
+	case qbittorrent.TorrentStateCheckingUp:
+		return vo.TaskPhase_TpDownCompleted
+	case qbittorrent.TorrentStateQueuedUp:
+		return vo.TaskPhase_TpUpQueued
+	case qbittorrent.TorrentStateUploading, qbittorrent.TorrentStateStalledUp, qbittorrent.TorrentStateForcedUp:
+		return vo.TaskPhase_TpDownRunning
+	case qbittorrent.TorrentStatePausedUp, qbittorrent.TorrentStateStoppedUp:
+		return vo.TaskPhase_TpUpPaused
+	case qbittorrent.TorrentStateMissingFiles:
+		return vo.TaskPhase_TpUpFailed
 	default:
 		return vo.TaskPhase_TpUnknown
 	}
@@ -116,20 +126,28 @@ func (t qbTask) ToVO() *vo.Task {
 		Size:      uint64(t.Size),
 		CreatedAt: uint64(t.CreatedAt().Unix()),
 	}
-	if stlslices.Contain([]qbittorrent.TorrentState{
-		qbittorrent.TorrentStateAllocating,
-		qbittorrent.TorrentStateDownloading,
-		qbittorrent.TorrentStateMetaDl,
-		qbittorrent.TorrentStatePausedDl,
-		qbittorrent.TorrentStateStoppedDl,
-		qbittorrent.TorrentStateQueuedDl,
-		qbittorrent.TorrentStateStalledDl,
-		qbittorrent.TorrentStateCheckingDl,
-		qbittorrent.TorrentStateForcedDl,
-	}, t.State) {
+	if stlslices.Contain([]vo.TaskPhase{
+		vo.TaskPhase_TpDownQueued,
+		vo.TaskPhase_TpDownRunning,
+		vo.TaskPhase_TpDownPaused,
+		vo.TaskPhase_TpDownFailed,
+		vo.TaskPhase_TpDownCompleted,
+	}, vt.Phase) {
 		vt.DownloadStats = &vo.DownloadStats{
-			Speed:    uint64(t.DlSpeed),
-			Progress: uint64(t.Downloaded),
+			Speed: uint64(t.DlSpeed),
+			Size:  uint64(t.Downloaded),
+		}
+	}
+	if stlslices.Contain([]vo.TaskPhase{
+		vo.TaskPhase_TpUpQueued,
+		vo.TaskPhase_TpUpRunning,
+		vo.TaskPhase_TpUpPaused,
+		vo.TaskPhase_TpUpFailed,
+		vo.TaskPhase_TpUpCompleted,
+	}, vt.Phase) {
+		vt.UploadStats = &vo.UploadStats{
+			Speed: uint64(t.UpSpeed),
+			Size:  uint64(t.Uploaded),
 		}
 	}
 	return vt

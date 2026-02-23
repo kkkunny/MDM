@@ -12,6 +12,7 @@ message Task {
   uint64 created_at = 6;  // 创建时间戳，单位秒
 
   optional DownloadStats download_stats = 50;
+  optional UploadStats upload_stats = 51;
 }
 
 // 类别
@@ -23,17 +24,30 @@ message Category{
 // 任务阶段
 enum TaskPhase {
   TpUnknown = 0;
-  TpDownWaiting = 1;
-  TpDownRunning = 2;
-  TpDownPaused = 3;
-  TpDownFailed = 4;
-  TpDownCompleted = 5;
+
+  TpDownQueued = 51;
+  TpDownRunning = 52;
+  TpDownPaused = 53;
+  TpDownFailed = 54;
+  TpDownCompleted = 55;
+
+  TpUpQueued = 101;
+  TpUpRunning = 102;
+  TpUpPaused = 103;
+  TpUpFailed = 104;
+  TpUpCompleted = 105;
 }
 
 // 下载状态
 message DownloadStats {
-  uint64 speed = 1;  // 下载速度，单位byte/s
-  uint64 progress = 2;  // 下载进度，单位byte
+  uint64 speed = 1;  // 速度，单位byte/s
+  uint64 size = 2;  // 大小，单位byte
+}
+
+// 上传状态
+message UploadStats {
+  uint64 speed = 1;  // 速度，单位byte/s
+  uint64 size = 2;  // 大小，单位byte
 }
 
 message ListTasksRequest {
@@ -62,7 +76,7 @@ message CreateTaskResponse {
 enum Operate {
   OpUnknown = 0;
   OpDelete = 1;  // 删除
-  OpResume = 2;  // 恢复下载
+  OpResume = 2;  // 恢复上传/下载
   OpPause = 3;  // 暂停
   OpRetry = 4;  // 失败重试
 }

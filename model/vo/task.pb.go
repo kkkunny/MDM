@@ -26,30 +26,45 @@ type TaskPhase int32
 
 const (
 	TaskPhase_TpUnknown       TaskPhase = 0
-	TaskPhase_TpDownWaiting   TaskPhase = 1
-	TaskPhase_TpDownRunning   TaskPhase = 2
-	TaskPhase_TpDownPaused    TaskPhase = 3
-	TaskPhase_TpDownFailed    TaskPhase = 4
-	TaskPhase_TpDownCompleted TaskPhase = 5
+	TaskPhase_TpDownQueued    TaskPhase = 51
+	TaskPhase_TpDownRunning   TaskPhase = 52
+	TaskPhase_TpDownPaused    TaskPhase = 53
+	TaskPhase_TpDownFailed    TaskPhase = 54
+	TaskPhase_TpDownCompleted TaskPhase = 55
+	TaskPhase_TpUpQueued      TaskPhase = 101
+	TaskPhase_TpUpRunning     TaskPhase = 102
+	TaskPhase_TpUpPaused      TaskPhase = 103
+	TaskPhase_TpUpFailed      TaskPhase = 104
+	TaskPhase_TpUpCompleted   TaskPhase = 105
 )
 
 // Enum value maps for TaskPhase.
 var (
 	TaskPhase_name = map[int32]string{
-		0: "TpUnknown",
-		1: "TpDownWaiting",
-		2: "TpDownRunning",
-		3: "TpDownPaused",
-		4: "TpDownFailed",
-		5: "TpDownCompleted",
+		0:   "TpUnknown",
+		51:  "TpDownQueued",
+		52:  "TpDownRunning",
+		53:  "TpDownPaused",
+		54:  "TpDownFailed",
+		55:  "TpDownCompleted",
+		101: "TpUpQueued",
+		102: "TpUpRunning",
+		103: "TpUpPaused",
+		104: "TpUpFailed",
+		105: "TpUpCompleted",
 	}
 	TaskPhase_value = map[string]int32{
 		"TpUnknown":       0,
-		"TpDownWaiting":   1,
-		"TpDownRunning":   2,
-		"TpDownPaused":    3,
-		"TpDownFailed":    4,
-		"TpDownCompleted": 5,
+		"TpDownQueued":    51,
+		"TpDownRunning":   52,
+		"TpDownPaused":    53,
+		"TpDownFailed":    54,
+		"TpDownCompleted": 55,
+		"TpUpQueued":      101,
+		"TpUpRunning":     102,
+		"TpUpPaused":      103,
+		"TpUpFailed":      104,
+		"TpUpCompleted":   105,
 	}
 )
 
@@ -86,7 +101,7 @@ type Operate int32
 const (
 	Operate_OpUnknown Operate = 0
 	Operate_OpDelete  Operate = 1 // 删除
-	Operate_OpResume  Operate = 2 // 恢复下载
+	Operate_OpResume  Operate = 2 // 恢复上传/下载
 	Operate_OpPause   Operate = 3 // 暂停
 	Operate_OpRetry   Operate = 4 // 失败重试
 )
@@ -146,6 +161,7 @@ type Task struct {
 	Category      *Category              `protobuf:"bytes,5,opt,name=category,proto3,oneof" json:"category,omitempty"`
 	CreatedAt     uint64                 `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间戳，单位秒
 	DownloadStats *DownloadStats         `protobuf:"bytes,50,opt,name=download_stats,json=downloadStats,proto3,oneof" json:"download_stats,omitempty"`
+	UploadStats   *UploadStats           `protobuf:"bytes,51,opt,name=upload_stats,json=uploadStats,proto3,oneof" json:"upload_stats,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -229,6 +245,13 @@ func (x *Task) GetDownloadStats() *DownloadStats {
 	return nil
 }
 
+func (x *Task) GetUploadStats() *UploadStats {
+	if x != nil {
+		return x.UploadStats
+	}
+	return nil
+}
+
 // 类别
 type Category struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -285,8 +308,8 @@ func (x *Category) GetIcon() string {
 // 下载状态
 type DownloadStats struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Speed         uint64                 `protobuf:"varint,1,opt,name=speed,proto3" json:"speed,omitempty"`       // 下载速度，单位byte/s
-	Progress      uint64                 `protobuf:"varint,2,opt,name=progress,proto3" json:"progress,omitempty"` // 下载进度，单位byte
+	Speed         uint64                 `protobuf:"varint,1,opt,name=speed,proto3" json:"speed,omitempty"` // 速度，单位byte/s
+	Size          uint64                 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`   // 大小，单位byte
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -328,9 +351,62 @@ func (x *DownloadStats) GetSpeed() uint64 {
 	return 0
 }
 
-func (x *DownloadStats) GetProgress() uint64 {
+func (x *DownloadStats) GetSize() uint64 {
 	if x != nil {
-		return x.Progress
+		return x.Size
+	}
+	return 0
+}
+
+// 上传状态
+type UploadStats struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Speed         uint64                 `protobuf:"varint,1,opt,name=speed,proto3" json:"speed,omitempty"` // 速度，单位byte/s
+	Size          uint64                 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`   // 大小，单位byte
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadStats) Reset() {
+	*x = UploadStats{}
+	mi := &file_task_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadStats) ProtoMessage() {}
+
+func (x *UploadStats) ProtoReflect() protoreflect.Message {
+	mi := &file_task_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadStats.ProtoReflect.Descriptor instead.
+func (*UploadStats) Descriptor() ([]byte, []int) {
+	return file_task_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UploadStats) GetSpeed() uint64 {
+	if x != nil {
+		return x.Speed
+	}
+	return 0
+}
+
+func (x *UploadStats) GetSize() uint64 {
+	if x != nil {
+		return x.Size
 	}
 	return 0
 }
@@ -347,7 +423,7 @@ type ListTasksRequest struct {
 
 func (x *ListTasksRequest) Reset() {
 	*x = ListTasksRequest{}
-	mi := &file_task_proto_msgTypes[3]
+	mi := &file_task_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -359,7 +435,7 @@ func (x *ListTasksRequest) String() string {
 func (*ListTasksRequest) ProtoMessage() {}
 
 func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_task_proto_msgTypes[3]
+	mi := &file_task_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -372,7 +448,7 @@ func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTasksRequest.ProtoReflect.Descriptor instead.
 func (*ListTasksRequest) Descriptor() ([]byte, []int) {
-	return file_task_proto_rawDescGZIP(), []int{3}
+	return file_task_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListTasksRequest) GetPage() uint32 {
@@ -399,7 +475,7 @@ type ListTasksResponse struct {
 
 func (x *ListTasksResponse) Reset() {
 	*x = ListTasksResponse{}
-	mi := &file_task_proto_msgTypes[4]
+	mi := &file_task_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +487,7 @@ func (x *ListTasksResponse) String() string {
 func (*ListTasksResponse) ProtoMessage() {}
 
 func (x *ListTasksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_task_proto_msgTypes[4]
+	mi := &file_task_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +500,7 @@ func (x *ListTasksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTasksResponse.ProtoReflect.Descriptor instead.
 func (*ListTasksResponse) Descriptor() ([]byte, []int) {
-	return file_task_proto_rawDescGZIP(), []int{4}
+	return file_task_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListTasksResponse) GetTasks() []*Task {
@@ -452,7 +528,7 @@ type CreateTaskRequest struct {
 
 func (x *CreateTaskRequest) Reset() {
 	*x = CreateTaskRequest{}
-	mi := &file_task_proto_msgTypes[5]
+	mi := &file_task_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -464,7 +540,7 @@ func (x *CreateTaskRequest) String() string {
 func (*CreateTaskRequest) ProtoMessage() {}
 
 func (x *CreateTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_task_proto_msgTypes[5]
+	mi := &file_task_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -477,7 +553,7 @@ func (x *CreateTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTaskRequest.ProtoReflect.Descriptor instead.
 func (*CreateTaskRequest) Descriptor() ([]byte, []int) {
-	return file_task_proto_rawDescGZIP(), []int{5}
+	return file_task_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateTaskRequest) GetLink() string {
@@ -510,7 +586,7 @@ type CreateTaskResponse struct {
 
 func (x *CreateTaskResponse) Reset() {
 	*x = CreateTaskResponse{}
-	mi := &file_task_proto_msgTypes[6]
+	mi := &file_task_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -522,7 +598,7 @@ func (x *CreateTaskResponse) String() string {
 func (*CreateTaskResponse) ProtoMessage() {}
 
 func (x *CreateTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_task_proto_msgTypes[6]
+	mi := &file_task_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -535,7 +611,7 @@ func (x *CreateTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTaskResponse.ProtoReflect.Descriptor instead.
 func (*CreateTaskResponse) Descriptor() ([]byte, []int) {
-	return file_task_proto_rawDescGZIP(), []int{6}
+	return file_task_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateTaskResponse) GetId() string {
@@ -555,7 +631,7 @@ type OperateTasksRequest struct {
 
 func (x *OperateTasksRequest) Reset() {
 	*x = OperateTasksRequest{}
-	mi := &file_task_proto_msgTypes[7]
+	mi := &file_task_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -567,7 +643,7 @@ func (x *OperateTasksRequest) String() string {
 func (*OperateTasksRequest) ProtoMessage() {}
 
 func (x *OperateTasksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_task_proto_msgTypes[7]
+	mi := &file_task_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -580,7 +656,7 @@ func (x *OperateTasksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OperateTasksRequest.ProtoReflect.Descriptor instead.
 func (*OperateTasksRequest) Descriptor() ([]byte, []int) {
-	return file_task_proto_rawDescGZIP(), []int{7}
+	return file_task_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *OperateTasksRequest) GetIds() []string {
@@ -602,7 +678,7 @@ var File_task_proto protoreflect.FileDescriptor
 const file_task_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"task.proto\x12\x04task\"\x96\x02\n" +
+	"task.proto\x12\x04task\"\xe2\x02\n" +
 	"\x04Task\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
@@ -611,15 +687,20 @@ const file_task_proto_rawDesc = "" +
 	"\bcategory\x18\x05 \x01(\v2\x0e.task.CategoryH\x00R\bcategory\x88\x01\x01\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\x06 \x01(\x04R\tcreatedAt\x12?\n" +
-	"\x0edownload_stats\x182 \x01(\v2\x13.task.DownloadStatsH\x01R\rdownloadStats\x88\x01\x01B\v\n" +
+	"\x0edownload_stats\x182 \x01(\v2\x13.task.DownloadStatsH\x01R\rdownloadStats\x88\x01\x01\x129\n" +
+	"\fupload_stats\x183 \x01(\v2\x11.task.UploadStatsH\x02R\vuploadStats\x88\x01\x01B\v\n" +
 	"\t_categoryB\x11\n" +
-	"\x0f_download_stats\"2\n" +
+	"\x0f_download_statsB\x0f\n" +
+	"\r_upload_stats\"2\n" +
 	"\bCategory\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04icon\x18\x02 \x01(\tR\x04icon\"A\n" +
+	"\x04icon\x18\x02 \x01(\tR\x04icon\"9\n" +
 	"\rDownloadStats\x12\x14\n" +
-	"\x05speed\x18\x01 \x01(\x04R\x05speed\x12\x1a\n" +
-	"\bprogress\x18\x02 \x01(\x04R\bprogress\"<\n" +
+	"\x05speed\x18\x01 \x01(\x04R\x05speed\x12\x12\n" +
+	"\x04size\x18\x02 \x01(\x04R\x04size\"7\n" +
+	"\vUploadStats\x12\x14\n" +
+	"\x05speed\x18\x01 \x01(\x04R\x05speed\x12\x12\n" +
+	"\x04size\x18\x02 \x01(\x04R\x04size\"<\n" +
 	"\x10ListTasksRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\rR\x04page\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\rR\x05count\"P\n" +
@@ -637,14 +718,22 @@ const file_task_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"P\n" +
 	"\x13OperateTasksRequest\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12'\n" +
-	"\aoperate\x18\x02 \x01(\x0e2\r.task.OperateR\aoperate*y\n" +
+	"\aoperate\x18\x02 \x01(\x0e2\r.task.OperateR\aoperate*\xcc\x01\n" +
 	"\tTaskPhase\x12\r\n" +
-	"\tTpUnknown\x10\x00\x12\x11\n" +
-	"\rTpDownWaiting\x10\x01\x12\x11\n" +
-	"\rTpDownRunning\x10\x02\x12\x10\n" +
-	"\fTpDownPaused\x10\x03\x12\x10\n" +
-	"\fTpDownFailed\x10\x04\x12\x13\n" +
-	"\x0fTpDownCompleted\x10\x05*N\n" +
+	"\tTpUnknown\x10\x00\x12\x10\n" +
+	"\fTpDownQueued\x103\x12\x11\n" +
+	"\rTpDownRunning\x104\x12\x10\n" +
+	"\fTpDownPaused\x105\x12\x10\n" +
+	"\fTpDownFailed\x106\x12\x13\n" +
+	"\x0fTpDownCompleted\x107\x12\x0e\n" +
+	"\n" +
+	"TpUpQueued\x10e\x12\x0f\n" +
+	"\vTpUpRunning\x10f\x12\x0e\n" +
+	"\n" +
+	"TpUpPaused\x10g\x12\x0e\n" +
+	"\n" +
+	"TpUpFailed\x10h\x12\x11\n" +
+	"\rTpUpCompleted\x10i*N\n" +
 	"\aOperate\x12\r\n" +
 	"\tOpUnknown\x10\x00\x12\f\n" +
 	"\bOpDelete\x10\x01\x12\f\n" +
@@ -665,30 +754,32 @@ func file_task_proto_rawDescGZIP() []byte {
 }
 
 var file_task_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_task_proto_goTypes = []any{
 	(TaskPhase)(0),              // 0: task.TaskPhase
 	(Operate)(0),                // 1: task.Operate
 	(*Task)(nil),                // 2: task.Task
 	(*Category)(nil),            // 3: task.Category
 	(*DownloadStats)(nil),       // 4: task.DownloadStats
-	(*ListTasksRequest)(nil),    // 5: task.ListTasksRequest
-	(*ListTasksResponse)(nil),   // 6: task.ListTasksResponse
-	(*CreateTaskRequest)(nil),   // 7: task.CreateTaskRequest
-	(*CreateTaskResponse)(nil),  // 8: task.CreateTaskResponse
-	(*OperateTasksRequest)(nil), // 9: task.OperateTasksRequest
+	(*UploadStats)(nil),         // 5: task.UploadStats
+	(*ListTasksRequest)(nil),    // 6: task.ListTasksRequest
+	(*ListTasksResponse)(nil),   // 7: task.ListTasksResponse
+	(*CreateTaskRequest)(nil),   // 8: task.CreateTaskRequest
+	(*CreateTaskResponse)(nil),  // 9: task.CreateTaskResponse
+	(*OperateTasksRequest)(nil), // 10: task.OperateTasksRequest
 }
 var file_task_proto_depIdxs = []int32{
 	0, // 0: task.Task.phase:type_name -> task.TaskPhase
 	3, // 1: task.Task.category:type_name -> task.Category
 	4, // 2: task.Task.download_stats:type_name -> task.DownloadStats
-	2, // 3: task.ListTasksResponse.tasks:type_name -> task.Task
-	1, // 4: task.OperateTasksRequest.operate:type_name -> task.Operate
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	5, // 3: task.Task.upload_stats:type_name -> task.UploadStats
+	2, // 4: task.ListTasksResponse.tasks:type_name -> task.Task
+	1, // 5: task.OperateTasksRequest.operate:type_name -> task.Operate
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_task_proto_init() }
@@ -697,14 +788,14 @@ func file_task_proto_init() {
 		return
 	}
 	file_task_proto_msgTypes[0].OneofWrappers = []any{}
-	file_task_proto_msgTypes[5].OneofWrappers = []any{}
+	file_task_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_task_proto_rawDesc), len(file_task_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
