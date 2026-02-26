@@ -7,6 +7,7 @@ import (
 
 	"github.com/autobrr/go-qbittorrent"
 	stlslices "github.com/kkkunny/stl/container/slices"
+	stlos "github.com/kkkunny/stl/os"
 	"github.com/kkkunny/xunlei/dto"
 
 	"github.com/kkkunny/MDM/model/vo"
@@ -14,6 +15,8 @@ import (
 
 // Task 任务信息
 type Task interface {
+	Phase() vo.TaskPhase
+	Speed() stlos.Size
 	CreatedAt() time.Time
 	ToVO() *vo.Task
 }
@@ -26,12 +29,8 @@ func TaskFromXL(t *dto.TaskInfo) Task {
 	return &xlTask{TaskInfo: t}
 }
 
-func (t xlTask) CreatedAt() time.Time {
-	return t.TaskInfo.CreatedTime
-}
-
-func covertXLPhase2VO(phase dto.TaskPhase) vo.TaskPhase {
-	switch phase {
+func (t xlTask) Phase() vo.TaskPhase {
+	switch t.TaskInfo.Phase {
 	case dto.TaskPhaseTypePending:
 		return vo.TaskPhase_TpDownQueued
 	case dto.TaskPhaseTypeRunning:
@@ -47,12 +46,20 @@ func covertXLPhase2VO(phase dto.TaskPhase) vo.TaskPhase {
 	}
 }
 
+func (t xlTask) Speed() stlos.Size {
+	return stlos.Size(t.TaskInfo.Speed) * stlos.Byte
+}
+
+func (t xlTask) CreatedAt() time.Time {
+	return t.TaskInfo.CreatedTime
+}
+
 var xlTaskCategoryMatch = regexp.MustCompile(`\[\[(.*?)]]\|(.+)`)
 
 func (t xlTask) ToVO() *vo.Task {
 	vt := &vo.Task{
 		Id:        fmt.Sprintf("XL|%s", t.ID),
-		Phase:     covertXLPhase2VO(t.Phase),
+		Phase:     t.Phase(),
 		Size:      uint64(t.FileSize),
 		CreatedAt: uint64(t.CreatedAt().Unix()),
 	}
@@ -73,7 +80,7 @@ func (t xlTask) ToVO() *vo.Task {
 		vo.TaskPhase_TpDownCompleted,
 	}, vt.Phase) {
 		vt.DownloadStats = &vo.DownloadStats{
-			Speed: uint64(t.Speed),
+			Speed: uint64(t.TaskInfo.Speed),
 			Size:  vt.Size * uint64(t.Progress) / 100,
 		}
 	}
@@ -88,12 +95,8 @@ func TaskFromQB(t *qbittorrent.Torrent) Task {
 	return &qbTask{Torrent: t}
 }
 
-func (t qbTask) CreatedAt() time.Time {
-	return time.Unix(t.AddedOn, 0)
-}
-
-func covertQBPhase2VO(state qbittorrent.TorrentState) vo.TaskPhase {
-	switch state {
+func (t qbTask) Phase() vo.TaskPhase {
+	switch t.State {
 	case qbittorrent.TorrentStateQueuedDl:
 		return vo.TaskPhase_TpDownQueued
 	case qbittorrent.TorrentStateAllocating, qbittorrent.TorrentStateDownloading, qbittorrent.TorrentStateMetaDl,
@@ -118,11 +121,22 @@ func covertQBPhase2VO(state qbittorrent.TorrentState) vo.TaskPhase {
 	}
 }
 
+func (t qbTask) Speed() stlos.Size {
+	if t.DlSpeed != 0 {
+		return stlos.Size(t.DlSpeed) * stlos.Byte
+	}
+	return stlos.Size(t.UpSpeed) * stlos.Byte
+}
+
+func (t qbTask) CreatedAt() time.Time {
+	return time.Unix(t.AddedOn, 0)
+}
+
 func (t qbTask) ToVO() *vo.Task {
 	vt := &vo.Task{
 		Id:        fmt.Sprintf("QB|%s", t.Hash),
 		Name:      t.Name,
-		Phase:     covertQBPhase2VO(t.State),
+		Phase:     t.Phase(),
 		Size:      uint64(t.Size),
 		CreatedAt: uint64(t.CreatedAt().Unix()),
 	}

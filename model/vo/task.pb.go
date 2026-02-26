@@ -611,6 +611,82 @@ func (x *OperateTasksRequest) GetOperate() Operate {
 	return Operate_OpUnknown
 }
 
+type StatInfoResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskCount     uint64                 `protobuf:"varint,1,opt,name=task_count,json=taskCount,proto3" json:"task_count,omitempty"`
+	DlCount       uint64                 `protobuf:"varint,2,opt,name=dl_count,json=dlCount,proto3" json:"dl_count,omitempty"`
+	DlSpeed       uint64                 `protobuf:"varint,3,opt,name=dl_speed,json=dlSpeed,proto3" json:"dl_speed,omitempty"`
+	UlCount       uint64                 `protobuf:"varint,4,opt,name=ul_count,json=ulCount,proto3" json:"ul_count,omitempty"`
+	UlSpeed       uint64                 `protobuf:"varint,5,opt,name=ul_speed,json=ulSpeed,proto3" json:"ul_speed,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StatInfoResponse) Reset() {
+	*x = StatInfoResponse{}
+	mi := &file_task_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatInfoResponse) ProtoMessage() {}
+
+func (x *StatInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_task_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatInfoResponse.ProtoReflect.Descriptor instead.
+func (*StatInfoResponse) Descriptor() ([]byte, []int) {
+	return file_task_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *StatInfoResponse) GetTaskCount() uint64 {
+	if x != nil {
+		return x.TaskCount
+	}
+	return 0
+}
+
+func (x *StatInfoResponse) GetDlCount() uint64 {
+	if x != nil {
+		return x.DlCount
+	}
+	return 0
+}
+
+func (x *StatInfoResponse) GetDlSpeed() uint64 {
+	if x != nil {
+		return x.DlSpeed
+	}
+	return 0
+}
+
+func (x *StatInfoResponse) GetUlCount() uint64 {
+	if x != nil {
+		return x.UlCount
+	}
+	return 0
+}
+
+func (x *StatInfoResponse) GetUlSpeed() uint64 {
+	if x != nil {
+		return x.UlSpeed
+	}
+	return 0
+}
+
 var File_task_proto protoreflect.FileDescriptor
 
 const file_task_proto_rawDesc = "" +
@@ -652,7 +728,14 @@ const file_task_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"P\n" +
 	"\x13OperateTasksRequest\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12'\n" +
-	"\aoperate\x18\x02 \x01(\x0e2\r.task.OperateR\aoperate*\xcc\x01\n" +
+	"\aoperate\x18\x02 \x01(\x0e2\r.task.OperateR\aoperate\"\x9d\x01\n" +
+	"\x10StatInfoResponse\x12\x1d\n" +
+	"\n" +
+	"task_count\x18\x01 \x01(\x04R\ttaskCount\x12\x19\n" +
+	"\bdl_count\x18\x02 \x01(\x04R\adlCount\x12\x19\n" +
+	"\bdl_speed\x18\x03 \x01(\x04R\adlSpeed\x12\x19\n" +
+	"\bul_count\x18\x04 \x01(\x04R\aulCount\x12\x19\n" +
+	"\bul_speed\x18\x05 \x01(\x04R\aulSpeed*\xcc\x01\n" +
 	"\tTaskPhase\x12\r\n" +
 	"\tTpUnknown\x10\x00\x12\x10\n" +
 	"\fTpDownQueued\x103\x12\x11\n" +
@@ -688,7 +771,7 @@ func file_task_proto_rawDescGZIP() []byte {
 }
 
 var file_task_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_task_proto_goTypes = []any{
 	(TaskPhase)(0),              // 0: task.TaskPhase
 	(Operate)(0),                // 1: task.Operate
@@ -700,6 +783,7 @@ var file_task_proto_goTypes = []any{
 	(*CreateTaskRequest)(nil),   // 7: task.CreateTaskRequest
 	(*CreateTaskResponse)(nil),  // 8: task.CreateTaskResponse
 	(*OperateTasksRequest)(nil), // 9: task.OperateTasksRequest
+	(*StatInfoResponse)(nil),    // 10: task.StatInfoResponse
 }
 var file_task_proto_depIdxs = []int32{
 	0, // 0: task.Task.phase:type_name -> task.TaskPhase
@@ -728,7 +812,7 @@ func file_task_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_task_proto_rawDesc), len(file_task_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

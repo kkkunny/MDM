@@ -77,3 +77,11 @@ message OperateTasksRequest {
   repeated string ids = 1;
   Operate operate = 2;
 }
+
+message StatInfoResponse {
+  uint64 task_count = 1;
+  uint64 dl_count = 2;
+  uint64 dl_speed = 3;
+  uint64 ul_count = 4;
+  uint64 ul_speed = 5;
+}

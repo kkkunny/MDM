@@ -29,6 +29,8 @@ func route(root *echo.Group) {
 	{
 		api.GET("/ping", handler.Ping)
 
+		api.GET("/stat_info", handler.StatInfo)
+
 		task := api.Group("/task")
 		{
 			task.GET("/list", handler.ListTasks)
