@@ -50,16 +50,8 @@ message UploadStats {
   uint64 size = 2;  // 大小，单位byte
 }
 
-message ListTasksRequest {
-  // @gotags: query:"page"
-  uint32 page = 1;
-  // @gotags: query:"count"
-  uint32 count = 2;
-}
-
 message ListTasksResponse {
   repeated Task tasks = 1;
-  bool has_more = 2;
 }
 
 message CreateTaskRequest {
