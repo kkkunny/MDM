@@ -95,7 +95,7 @@ func AutoManageTasks(ctx context.Context) error {
 		return nil
 	}
 
-	err = DownloadCompleted(ctx, downTasks...)
+	err = Completed(ctx, downTasks...)
 	if err != nil {
 		return err
 	}
@@ -103,8 +103,8 @@ func AutoManageTasks(ctx context.Context) error {
 	return nil
 }
 
-// DownloadCompleted 下载完成
-func DownloadCompleted(ctx context.Context, tasks ...*dto.XLTask) error {
+// Completed 下载完成
+func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 	// 查找种子文件
 	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
 		return t.Hash(), tuple.Pack3[*dto.XLTask, string, *metainfo.Info](t, "", nil)
