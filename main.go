@@ -36,6 +36,7 @@ func route(root *echo.Group) {
 			task.GET("/list", handler.ListTasks)
 			task.POST("/create", handler.CreateTask)
 			task.POST("/operate", handler.OperateTasks)
+			task.POST("/auto_manage", handler.AutoManage)
 		}
 	}
 }

@@ -10,26 +10,56 @@ import (
 	stlos "github.com/kkkunny/stl/os"
 	"github.com/kkkunny/xunlei/dto"
 
+	"github.com/kkkunny/MDM/config"
 	"github.com/kkkunny/MDM/model/vo"
 )
 
 // Task 任务信息
 type Task interface {
+	Hash() string
+	Name() string
+	Category() string
+	SavePath() string
 	Phase() vo.TaskPhase
 	Speed() stlos.Size
 	CreatedAt() time.Time
 	ToVO() *vo.Task
 }
 
-type xlTask struct {
+type XLTask struct {
 	*dto.TaskInfo
 }
 
-func TaskFromXL(t *dto.TaskInfo) Task {
-	return &xlTask{TaskInfo: t}
+func (t XLTask) SavePath() string {
+	path, _ := stlos.ReplaceBase(t.TaskInfo.SavePath, config.XLDownloadDirByXL, config.DownloadDir)
+	return path
 }
 
-func (t xlTask) Phase() vo.TaskPhase {
+func TaskFromXL(t *dto.TaskInfo) Task {
+	return &XLTask{TaskInfo: t}
+}
+
+func (t XLTask) Hash() string {
+	return t.TaskInfo.Extra["info_hash"]
+}
+
+func (t XLTask) Name() string {
+	categoryMatches := xlTaskCategoryMatch.FindAllStringSubmatch(t.TaskInfo.Name, -1)
+	if len(categoryMatches) > 0 {
+		return categoryMatches[0][2]
+	}
+	return t.TaskInfo.Name
+}
+
+func (t XLTask) Category() string {
+	categoryMatches := xlTaskCategoryMatch.FindAllStringSubmatch(t.TaskInfo.Name, -1)
+	if len(categoryMatches) > 0 {
+		return categoryMatches[0][1]
+	}
+	return ""
+}
+
+func (t XLTask) Phase() vo.TaskPhase {
 	switch t.TaskInfo.Phase {
 	case dto.TaskPhaseTypePending:
 		return vo.TaskPhase_TpDownQueued
@@ -46,31 +76,28 @@ func (t xlTask) Phase() vo.TaskPhase {
 	}
 }
 
-func (t xlTask) Speed() stlos.Size {
+func (t XLTask) Speed() stlos.Size {
 	return stlos.Size(t.TaskInfo.Speed) * stlos.Byte
 }
 
-func (t xlTask) CreatedAt() time.Time {
+func (t XLTask) CreatedAt() time.Time {
 	return t.TaskInfo.CreatedTime
 }
 
 var xlTaskCategoryMatch = regexp.MustCompile(`\[\[(.*?)]]\|(.+)`)
 
-func (t xlTask) ToVO() *vo.Task {
+func (t XLTask) ToVO() *vo.Task {
 	vt := &vo.Task{
 		Id:        fmt.Sprintf("XL|%s", t.ID),
+		Name:      t.Name(),
 		Phase:     t.Phase(),
 		Size:      uint64(t.FileSize),
 		CreatedAt: uint64(t.CreatedAt().Unix()),
 	}
-	categoryMatches := xlTaskCategoryMatch.FindAllStringSubmatch(t.Name, -1)
-	if len(categoryMatches) > 0 {
+	if category := t.Category(); category != "" {
 		vt.Category = &vo.Category{
-			Name: categoryMatches[0][1],
+			Name: category,
 		}
-		vt.Name = categoryMatches[0][2]
-	} else {
-		vt.Name = t.Name
 	}
 	if stlslices.Contain([]vo.TaskPhase{
 		vo.TaskPhase_TpDownQueued,
@@ -87,15 +114,32 @@ func (t xlTask) ToVO() *vo.Task {
 	return vt
 }
 
-type qbTask struct {
+type QBTask struct {
 	*qbittorrent.Torrent
 }
 
-func TaskFromQB(t *qbittorrent.Torrent) Task {
-	return &qbTask{Torrent: t}
+func (t QBTask) SavePath() string {
+	path, _ := stlos.ReplaceBase(t.Torrent.ContentPath, config.QBDownloadDirByQB, config.DownloadDir)
+	return path
 }
 
-func (t qbTask) Phase() vo.TaskPhase {
+func TaskFromQB(t *qbittorrent.Torrent) Task {
+	return &QBTask{Torrent: t}
+}
+
+func (t QBTask) Hash() string {
+	return t.Torrent.Hash
+}
+
+func (t QBTask) Name() string {
+	return t.Torrent.Name
+}
+
+func (t QBTask) Category() string {
+	return t.Torrent.Category
+}
+
+func (t QBTask) Phase() vo.TaskPhase {
 	switch t.State {
 	case qbittorrent.TorrentStateQueuedDl:
 		return vo.TaskPhase_TpDownQueued
@@ -121,24 +165,29 @@ func (t qbTask) Phase() vo.TaskPhase {
 	}
 }
 
-func (t qbTask) Speed() stlos.Size {
+func (t QBTask) Speed() stlos.Size {
 	if t.DlSpeed != 0 {
 		return stlos.Size(t.DlSpeed) * stlos.Byte
 	}
 	return stlos.Size(t.UpSpeed) * stlos.Byte
 }
 
-func (t qbTask) CreatedAt() time.Time {
+func (t QBTask) CreatedAt() time.Time {
 	return time.Unix(t.AddedOn, 0)
 }
 
-func (t qbTask) ToVO() *vo.Task {
+func (t QBTask) ToVO() *vo.Task {
 	vt := &vo.Task{
-		Id:        fmt.Sprintf("QB|%s", t.Hash),
-		Name:      t.Name,
+		Id:        fmt.Sprintf("QB|%s", t.Hash()),
+		Name:      t.Name(),
 		Phase:     t.Phase(),
 		Size:      uint64(t.Size),
 		CreatedAt: uint64(t.CreatedAt().Unix()),
+	}
+	if category := t.Category(); category != "" {
+		vt.Category = &vo.Category{
+			Name: category,
+		}
 	}
 	if stlslices.Contain([]vo.TaskPhase{
 		vo.TaskPhase_TpDownQueued,
