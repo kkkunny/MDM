@@ -13,6 +13,7 @@ const (
 
 var (
 	DownloadDir         = stlval.Ternary(Release, "/downloads", "/mnt/data/downloads") // 迅雷下载目录
-	CompleteDownloadDir = filepath.Join(DownloadDir, "complete")
+	DownloadCompleteDir = filepath.Join(DownloadDir, "complete")
+	TorrentDir          = filepath.Join(DownloadCompleteDir, "torrents")
 	XLBtDir             = filepath.Join(DownloadDir, ".bt") // 种子文件存放目录
 )

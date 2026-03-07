@@ -8,11 +8,11 @@ import (
 
 func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		config.HttpLogger.Infof("http request ==> [%s] %s", c.Request().Method, c.Path())
+		config.Logger.Infof("http request ==> [%s] %s", c.Request().Method, c.Path())
 
 		err := next(c)
 		if err != nil {
-			config.HttpLogger.Error(err)
+			config.Logger.Error(err)
 		}
 		return err
 	}

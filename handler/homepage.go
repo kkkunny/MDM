@@ -14,7 +14,7 @@ import (
 func Homepage(c *echo.Context) error {
 	ctx := c.Request().Context()
 
-	tasks, err := task.GetTasks(ctx)
+	tasks, err := task.GetAllTasks(ctx)
 	if err != nil {
 		return err
 	}
