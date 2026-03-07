@@ -5,7 +5,7 @@ go 1.25.6
 require (
 	github.com/autobrr/go-qbittorrent v1.14.0
 	github.com/go-playground/validator v9.31.0+incompatible
-	github.com/kkkunny/stl v0.0.0-20260131180005-49b3dc7a6c0d
+	github.com/kkkunny/stl v0.0.0-20260307031944-e219373fec6b
 	github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24
 	github.com/labstack/echo/v5 v5.0.4
 	golang.org/x/sync v0.19.0

@@ -29,7 +29,7 @@ func route(root *echo.Group) {
 	{
 		api.GET("/ping", handler.Ping)
 
-		api.GET("/stat_info", handler.StatInfo)
+		api.GET("/homepage", handler.Homepage)
 
 		task := api.Group("/task")
 		{

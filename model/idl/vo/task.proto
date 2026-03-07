@@ -78,10 +78,9 @@ message OperateTasksRequest {
   Operate operate = 2;
 }
 
-message StatInfoResponse {
-  uint64 task_count = 1;
-  uint64 dl_count = 2;
-  uint64 dl_speed = 3;
-  uint64 ul_count = 4;
-  uint64 ul_speed = 5;
+message HomepageResponse {
+  int32 dl_count = 1;
+  string dl_speed = 2;
+  int32 ul_count = 3;
+  string ul_speed = 4;
 }

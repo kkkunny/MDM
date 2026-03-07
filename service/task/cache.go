@@ -30,7 +30,7 @@ func (tc *_TasksCache) Get(ctx context.Context) ([]dto.Task, error) {
 	if ok {
 		return tasks, nil
 	}
-	return tc.updateAndGet(ctx)
+	return tc.GetLatest(ctx)
 }
 
 func (tc *_TasksCache) tryGet() ([]dto.Task, bool) {
@@ -43,7 +43,7 @@ func (tc *_TasksCache) tryGet() ([]dto.Task, bool) {
 	return tc.data, true
 }
 
-func (tc *_TasksCache) updateAndGet(ctx context.Context) ([]dto.Task, error) {
+func (tc *_TasksCache) GetLatest(ctx context.Context) ([]dto.Task, error) {
 	tc.lock.Lock()
 	defer tc.lock.Unlock()
 

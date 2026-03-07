@@ -35,8 +35,8 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/imroc/req/v3 v3.48.0 h1:IYuMGetuwLzOOTzDCquDqs912WNwpsPK0TBXWPIvoqg=
 github.com/imroc/req/v3 v3.48.0/go.mod h1:weam9gmyb00QnOtu6HXSnk44dNFkIUQb5QdMx13FeUU=
-github.com/kkkunny/stl v0.0.0-20260131180005-49b3dc7a6c0d h1:YlRLh7+k1KyYWzATVSpPATD2Q2jRnPDJCYnt8ZaoVAw=
-github.com/kkkunny/stl v0.0.0-20260131180005-49b3dc7a6c0d/go.mod h1:vm8PcGY+mp6XVJHuPqf2u/sdDyuShvgE7r86a4GL+Co=
+github.com/kkkunny/stl v0.0.0-20260307031944-e219373fec6b h1:MZtE7Mn5KL8Q2GAlwbGr7Ac/C12qz04aWWab0dELoEA=
+github.com/kkkunny/stl v0.0.0-20260307031944-e219373fec6b/go.mod h1:vm8PcGY+mp6XVJHuPqf2u/sdDyuShvgE7r86a4GL+Co=
 github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24 h1:RQLFv6A9pP68laVtlH/qQDtUpLTRFqur5YdLHFhKD90=
 github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24/go.mod h1:mvhav1tzvXWBf3KGiAIPnY79uAm4OyTaNoVOKDQ05h0=
 github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r5xaG0Es51mhhB9BQB2qeMA=
