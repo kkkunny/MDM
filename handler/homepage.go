@@ -10,6 +10,7 @@ import (
 	"github.com/kkkunny/MDM/service/task"
 )
 
+// Homepage 提供给Homepage的展示信息
 func Homepage(c *echo.Context) error {
 	ctx := c.Request().Context()
 
