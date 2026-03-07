@@ -6,16 +6,16 @@ import (
 	"encoding/json"
 )
 
-type Bytes interface {
-	string | []byte
+type BytesSeq interface {
+	string | []byte | []rune
 }
 
-func MD5[T Bytes](data T) T {
-	b := md5.Sum([]byte(data))
+func MD5[T BytesSeq](data T) T {
+	b := md5.Sum([]byte(string(data)))
 	return T(hex.EncodeToString(b[:]))
 }
 
-func ToJson[T Bytes](data any) T {
+func ToJson[T BytesSeq](data any) T {
 	b, _ := json.Marshal(data)
-	return T(b)
+	return T(string(b))
 }

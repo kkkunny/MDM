@@ -2,8 +2,10 @@ package task
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/anacrolix/torrent/metainfo"
 	stlslices "github.com/kkkunny/stl/container/slices"
@@ -16,6 +18,7 @@ import (
 	"github.com/kkkunny/MDM/dal/qb"
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
+	"github.com/kkkunny/MDM/model/vo"
 	"github.com/kkkunny/MDM/util"
 )
 
@@ -122,6 +125,17 @@ func DownloadCompleted(ctx context.Context, tasks ...*dto.XLTask) error {
 		err = stlerr.ErrorWrap(os.Rename(tp, filepath.Join(config.TorrentDir, task.Hash()+".torrent")))
 		if err != nil {
 			_ = config.Logger.Warn(err)
+		}
+
+		// 回调
+		if config.TaskDownloadCompletedFallbackAddr != "" {
+			fallbackReq := &vo.TaskDownloadCompletedFallbackRequest{}
+			resp, err := stlerr.ErrorWith(http.Post(config.TaskDownloadCompletedFallbackAddr, "application/json", strings.NewReader(util.ToJson[string](fallbackReq))))
+			if err != nil {
+				_ = config.Logger.Warn(err)
+			} else if resp.StatusCode != http.StatusOK {
+				_ = config.Logger.Warnf("fallback request failed, statusCode=%d", resp.StatusCode)
+			}
 		}
 	}
 	return nil

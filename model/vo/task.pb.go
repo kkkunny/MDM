@@ -679,6 +679,66 @@ func (x *HomepageResponse) GetUlSpeed() string {
 	return ""
 }
 
+type TaskDownloadCompletedFallbackRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Hash          string                 `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
+	SavePath      string                 `protobuf:"bytes,3,opt,name=save_path,json=savePath,proto3" json:"save_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskDownloadCompletedFallbackRequest) Reset() {
+	*x = TaskDownloadCompletedFallbackRequest{}
+	mi := &file_task_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskDownloadCompletedFallbackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskDownloadCompletedFallbackRequest) ProtoMessage() {}
+
+func (x *TaskDownloadCompletedFallbackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_task_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskDownloadCompletedFallbackRequest.ProtoReflect.Descriptor instead.
+func (*TaskDownloadCompletedFallbackRequest) Descriptor() ([]byte, []int) {
+	return file_task_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *TaskDownloadCompletedFallbackRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TaskDownloadCompletedFallbackRequest) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+func (x *TaskDownloadCompletedFallbackRequest) GetSavePath() string {
+	if x != nil {
+		return x.SavePath
+	}
+	return ""
+}
+
 var File_task_proto protoreflect.FileDescriptor
 
 const file_task_proto_rawDesc = "" +
@@ -725,7 +785,11 @@ const file_task_proto_rawDesc = "" +
 	"\bdl_count\x18\x01 \x01(\x05R\adlCount\x12\x19\n" +
 	"\bdl_speed\x18\x02 \x01(\tR\adlSpeed\x12\x19\n" +
 	"\bul_count\x18\x03 \x01(\x05R\aulCount\x12\x19\n" +
-	"\bul_speed\x18\x04 \x01(\tR\aulSpeed*\xcc\x01\n" +
+	"\bul_speed\x18\x04 \x01(\tR\aulSpeed\"k\n" +
+	"$TaskDownloadCompletedFallbackRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04hash\x18\x02 \x01(\tR\x04hash\x12\x1b\n" +
+	"\tsave_path\x18\x03 \x01(\tR\bsavePath*\xcc\x01\n" +
 	"\tTaskPhase\x12\r\n" +
 	"\tTpUnknown\x10\x00\x12\x10\n" +
 	"\fTpDownQueued\x103\x12\x11\n" +
@@ -761,19 +825,20 @@ func file_task_proto_rawDescGZIP() []byte {
 }
 
 var file_task_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_task_proto_goTypes = []any{
-	(TaskPhase)(0),              // 0: task.TaskPhase
-	(Operate)(0),                // 1: task.Operate
-	(*Task)(nil),                // 2: task.Task
-	(*Category)(nil),            // 3: task.Category
-	(*DownloadStats)(nil),       // 4: task.DownloadStats
-	(*UploadStats)(nil),         // 5: task.UploadStats
-	(*ListTasksResponse)(nil),   // 6: task.ListTasksResponse
-	(*CreateTaskRequest)(nil),   // 7: task.CreateTaskRequest
-	(*CreateTaskResponse)(nil),  // 8: task.CreateTaskResponse
-	(*OperateTasksRequest)(nil), // 9: task.OperateTasksRequest
-	(*HomepageResponse)(nil),    // 10: task.HomepageResponse
+	(TaskPhase)(0),                               // 0: task.TaskPhase
+	(Operate)(0),                                 // 1: task.Operate
+	(*Task)(nil),                                 // 2: task.Task
+	(*Category)(nil),                             // 3: task.Category
+	(*DownloadStats)(nil),                        // 4: task.DownloadStats
+	(*UploadStats)(nil),                          // 5: task.UploadStats
+	(*ListTasksResponse)(nil),                    // 6: task.ListTasksResponse
+	(*CreateTaskRequest)(nil),                    // 7: task.CreateTaskRequest
+	(*CreateTaskResponse)(nil),                   // 8: task.CreateTaskResponse
+	(*OperateTasksRequest)(nil),                  // 9: task.OperateTasksRequest
+	(*HomepageResponse)(nil),                     // 10: task.HomepageResponse
+	(*TaskDownloadCompletedFallbackRequest)(nil), // 11: task.TaskDownloadCompletedFallbackRequest
 }
 var file_task_proto_depIdxs = []int32{
 	0, // 0: task.Task.phase:type_name -> task.TaskPhase
@@ -802,7 +867,7 @@ func file_task_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_task_proto_rawDesc), len(file_task_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
