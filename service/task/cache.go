@@ -2,12 +2,12 @@ package task
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/autobrr/go-qbittorrent"
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
+	stlsync "github.com/kkkunny/stl/sync"
 	xldto "github.com/kkkunny/xunlei/dto"
 
 	"github.com/kkkunny/MDM/dal/qb"
@@ -17,10 +17,10 @@ import (
 
 const cacheDuration = time.Second * 2
 
-var tasksCache = new(_TasksCache)
+var tasksCache = &_TasksCache{lock: stlsync.NewReentrantRWLock()}
 
 type _TasksCache struct {
-	lock     sync.RWMutex
+	lock     *stlsync.ReentrantRWLock
 	data     []dto.Task
 	updateAt time.Time
 }
@@ -30,6 +30,14 @@ func (tc *_TasksCache) Get(ctx context.Context) ([]dto.Task, error) {
 	if ok {
 		return tasks, nil
 	}
+
+	tc.lock.Lock()
+	defer tc.lock.Unlock()
+	tasks, ok = tc.tryGet()
+	if ok {
+		return tasks, nil
+	}
+
 	return tc.GetLatest(ctx)
 }
 
