@@ -6,7 +6,7 @@ require (
 	github.com/anacrolix/torrent v1.61.0
 	github.com/autobrr/go-qbittorrent v1.14.0
 	github.com/go-playground/validator v9.31.0+incompatible
-	github.com/kkkunny/stl v0.0.0-20260307064501-714bd45713f2
+	github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3
 	github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24
 	github.com/labstack/echo/v5 v5.0.4
 	golang.org/x/sync v0.19.0

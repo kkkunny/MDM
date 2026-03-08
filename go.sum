@@ -153,8 +153,8 @@ github.com/jtolds/gls v4.2.1+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVY
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
-github.com/kkkunny/stl v0.0.0-20260307064501-714bd45713f2 h1:XZ58cim8PPZiEjqUwVBUXk48uCTACyT0IlBvMVAH3Dc=
-github.com/kkkunny/stl v0.0.0-20260307064501-714bd45713f2/go.mod h1:vm8PcGY+mp6XVJHuPqf2u/sdDyuShvgE7r86a4GL+Co=
+github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3 h1:G/Fd+6nUHKvXqqpyM1Tj5iOjKIzbZVngrI7WSfv3fhA=
+github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3/go.mod h1:vm8PcGY+mp6XVJHuPqf2u/sdDyuShvgE7r86a4GL+Co=
 github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24 h1:RQLFv6A9pP68laVtlH/qQDtUpLTRFqur5YdLHFhKD90=
 github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24/go.mod h1:mvhav1tzvXWBf3KGiAIPnY79uAm4OyTaNoVOKDQ05h0=
 github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r5xaG0Es51mhhB9BQB2qeMA=
