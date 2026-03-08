@@ -187,12 +187,25 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 
 		// 回调
 		if config.TaskDownloadCompletedFallbackAddr != "" {
-			fallbackReq := &vo.TaskDownloadCompletedFallbackRequest{}
-			resp, err := stlerr.ErrorWith(http.Post(config.TaskDownloadCompletedFallbackAddr, "application/json", strings.NewReader(util.ToJson[string](fallbackReq))))
+			fallbackReq := &vo.TaskDownloadCompletedFallbackRequest{
+				Name:     task.Name(),
+				Hash:     task.Hash(),
+				SavePath: task.SavePath(),
+			}
+			httpReq, err := stlerr.ErrorWith(http.NewRequestWithContext(ctx, http.MethodPost, config.TaskDownloadCompletedFallbackAddr, strings.NewReader(util.ToJson[string](fallbackReq))))
 			if err != nil {
 				_ = config.Logger.Warn(err)
-			} else if resp.StatusCode != http.StatusOK {
-				_ = config.Logger.Warnf("fallback request failed, statusCode=%d", resp.StatusCode)
+			} else {
+				httpReq.Header.Set("Content-Type", "application/json")
+				resp, err := stlerr.ErrorWith(http.DefaultClient.Do(httpReq))
+				if err != nil {
+					_ = config.Logger.Warn(err)
+				} else {
+					defer resp.Body.Close()
+					if resp.StatusCode != http.StatusOK {
+						_ = config.Logger.Warnf("fallback request failed, statusCode=%d", resp.StatusCode)
+					}
+				}
 			}
 		}
 	}
