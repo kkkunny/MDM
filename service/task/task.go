@@ -71,24 +71,35 @@ func AutoManageTasks(ctx context.Context) error {
 		if xlTask.TaskInfo.Phase != xldto.TaskPhaseTypeComplete {
 			return nil
 		}
-		var existTempFile bool
-		err = stlerr.ErrorWrap(filepath.WalkDir(xlTask.SavePath(), func(_ string, entry fs.DirEntry, err error) error {
-			if err != nil {
-				return stlerr.ErrorWrap(err)
-			}
-			if entry.IsDir() {
-				return nil
-			}
-			existTempFile = existTempFile || strings.HasSuffix(strings.ToLower(entry.Name()), ".xltd")
-			return nil
-		}))
+
+		// 跳过保存地址不存在的任务，有可能上次迁移时失败了
+		exist, err := stlerr.ErrorWith(stlos.Exist(xlTask.SavePath()))
 		if err != nil {
 			_ = config.Logger.Warn(err)
 			return nil
 		}
-		if existTempFile {
-			return nil
+		if exist {
+			// 跳过保存地址里存在迅雷临时文件的任务
+			var existTempFile bool
+			err = stlerr.ErrorWrap(filepath.WalkDir(xlTask.SavePath(), func(_ string, entry fs.DirEntry, err error) error {
+				if err != nil {
+					return stlerr.ErrorWrap(err)
+				}
+				if entry.IsDir() {
+					return nil
+				}
+				existTempFile = existTempFile || strings.HasSuffix(strings.ToLower(entry.Name()), ".xltd")
+				return nil
+			}))
+			if err != nil {
+				_ = config.Logger.Warn(err)
+				return nil
+			}
+			if existTempFile {
+				return nil
+			}
 		}
+
 		return []*dto.XLTask{xlTask}
 	})
 	if len(downTasks) == 0 {
@@ -105,6 +116,8 @@ func AutoManageTasks(ctx context.Context) error {
 
 // Completed 下载完成
 func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
+	_ = config.Logger.Infof("tasks `%v` download complete", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
+
 	// 查找种子文件
 	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
 		return t.Hash(), tuple.Pack3[*dto.XLTask, string, *metainfo.Info](t, "", nil)
