@@ -175,7 +175,10 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 		}
 
 		// 新建qb任务
-		existedQbTask := stlval.IgnoreWith(GetTaskByHash(ctx, task.Hash()))
+		var existedQbTask *dto.QBTask
+		if existedTask := stlval.IgnoreWith(GetTaskByHash(ctx, task.Hash())); existedTask != nil {
+			existedQbTask, _ = existedTask.(*dto.QBTask)
+		}
 		if existedQbTask == nil {
 			err = stlerr.ErrorWrap(qb.Client.AddTorrentFromFileCtx(ctx, tp, map[string]string{
 				"skip_checking": "true",
