@@ -14,6 +14,7 @@ import (
 )
 
 type TasksDal struct {
+	model
 	query query.ITaskDo
 	ctx   context.Context
 }

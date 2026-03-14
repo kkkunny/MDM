@@ -33,6 +33,7 @@ var (
 		if err != nil {
 			return nil, err
 		}
+		query.SetDefault(cli)
 		return query.Use(cli), nil
 	})
 )
