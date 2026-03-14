@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/anacrolix/torrent/metainfo"
+	stlmaps "github.com/kkkunny/stl/container/maps"
 	stlslices "github.com/kkkunny/stl/container/slices"
 	"github.com/kkkunny/stl/container/tuple"
 	stlerr "github.com/kkkunny/stl/error"
@@ -21,6 +23,7 @@ import (
 
 	"github.com/kkkunny/MDM/config"
 	"github.com/kkkunny/MDM/dal/db"
+	"github.com/kkkunny/MDM/dal/db/po"
 	"github.com/kkkunny/MDM/dal/qb"
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
@@ -60,26 +63,26 @@ func AutoManageTasks(ctx context.Context) error {
 	}
 	defer taskAutoManagerLocker.Unlock()
 
-	tasks, err := GetAllTasks(ctx, true)
+	tasks, err := GetAllTasks(ctx)
 	if err != nil {
 		return err
 	}
 
-	// 过滤完成的任务
-	downTasks := stlslices.FlatMap(tasks, func(_ int, t dto.Task) []*dto.XLTask {
+	// 下载完成的任务
+	completedTasks := stlslices.Map(stlslices.Filter(tasks, func(_ int, t dto.Task) bool {
 		xlTask, ok := t.(*dto.XLTask)
 		if !ok {
-			return nil
+			return false
 		}
 		if xlTask.TaskInfo.Phase != xldto.TaskPhaseTypeComplete {
-			return nil
+			return false
 		}
 
 		// 跳过保存地址不存在的任务，有可能上次迁移时失败了
 		exist, err := stlerr.ErrorWith(stlos.Exist(xlTask.SavePath()))
 		if err != nil {
 			_ = config.Logger.Warn(err)
-			return nil
+			return false
 		}
 		if exist {
 			// 跳过保存地址里存在迅雷临时文件的任务
@@ -96,22 +99,40 @@ func AutoManageTasks(ctx context.Context) error {
 			}))
 			if err != nil {
 				_ = config.Logger.Warn(err)
-				return nil
+				return false
 			}
 			if existTempFile {
-				return nil
+				return false
 			}
 		}
 
-		return []*dto.XLTask{xlTask}
-	})
-	if len(downTasks) == 0 {
-		return nil
+		return true
+	}), func(_ int, t dto.Task) *dto.XLTask { return t.(*dto.XLTask) })
+	if len(completedTasks) > 0 {
+		return Completed(ctx, completedTasks...)
 	}
 
-	err = Completed(ctx, downTasks...)
-	if err != nil {
-		return err
+	// 下载阻塞的任务
+	cloggedTasks := stlslices.Map(stlslices.Filter(tasks, func(_ int, t dto.Task) bool {
+		xlTask, ok := t.(*dto.XLTask)
+		if !ok {
+			return false
+		}
+		if xlTask.TaskInfo.Phase == xldto.TaskPhaseTypeComplete || xlTask.TaskInfo.Progress > 99 {
+			return false
+		} else if xlTask.TaskInfo.Phase == xldto.TaskPhaseTypeError {
+			return true
+		}
+		dur, speed := time.Since(xlTask.TaskInfo.CreatedTime), stlos.Size(xlTask.TaskInfo.Speed)*stlos.Byte
+		switch {
+		case dur > time.Minute && speed < stlos.KiB:
+			// 超过一分钟，速度小于1KB的
+			return true
+		}
+		return false
+	}), func(_ int, t dto.Task) *dto.XLTask { return t.(*dto.XLTask) })
+	if len(cloggedTasks) > 0 {
+		return Clogged(ctx, cloggedTasks...)
 	}
 
 	return nil
@@ -119,7 +140,7 @@ func AutoManageTasks(ctx context.Context) error {
 
 // Completed 下载完成
 func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
-	_ = config.Logger.Infof("tasks `%v` download complete", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
+	_ = config.Logger.Infof("tasks `%v` download completed", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
 
 	// 查找种子文件
 	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
@@ -247,6 +268,98 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 					}
 				}
 			}
+		}
+	}
+	return nil
+}
+
+// Clogged 下载阻塞
+func Clogged(ctx context.Context, tasks ...*dto.XLTask) error {
+	_ = config.Logger.Tracef("tasks `%v` download clogged", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
+
+	d, err := db.NewTasksDal(ctx)
+	if err != nil {
+		return err
+	}
+	dbTasks, err := d.MGetByIDs(stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.ID() })...)
+	if err != nil {
+		return err
+	}
+	dbTasks = stlmaps.Filter(dbTasks, func(k string, v *po.Task) bool {
+		return strings.Count(*v.AvailableLinks, ",") > 0
+	})
+	tasks = stlslices.Filter(tasks, func(_ int, t *dto.XLTask) bool {
+		return stlmaps.ContainKey(dbTasks, t.ID())
+	})
+
+	_ = config.Logger.Infof("tasks `%v` download clogged, need using backup link", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
+
+	// 查找种子文件
+	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
+		return t.Hash(), tuple.Pack3[*dto.XLTask, string, *metainfo.Info](t, "", nil)
+	})
+	fileEntries, err := stlerr.ErrorWith(os.ReadDir(config.XLBtDir))
+	if err != nil {
+		return err
+	}
+	for _, fileEntry := range fileEntries {
+		fp := filepath.Join(config.XLBtDir, fileEntry.Name())
+		tmi, err := stlerr.ErrorWith(metainfo.LoadFromFile(fp))
+		if err != nil {
+			_ = config.Logger.Debug(err)
+			continue
+		}
+		hash := tmi.HashInfoBytes().HexString()
+		tt, ok := hash2TaskAndTorrent[hash]
+		if !ok {
+			continue
+		}
+		tmiInfo, err := stlerr.ErrorWith(tmi.UnmarshalInfo())
+		if err != nil {
+			_ = config.Logger.Debug(err)
+			continue
+		}
+		hash2TaskAndTorrent[hash] = tuple.Pack3(tt.E1(), fp, &tmiInfo)
+	}
+
+	for _, taskAndTorrentPath := range hash2TaskAndTorrent {
+		task, tp, _ := taskAndTorrentPath.Unpack()
+		if tp == "" {
+			_ = config.Logger.Warnf("can not find torrent for task `%s`", task.Name())
+			continue
+		}
+
+		// 删除种子文件
+		err = stlerr.ErrorWrap(os.Remove(tp))
+		if err != nil {
+			_ = config.Logger.Warn(err)
+		}
+
+		// 删除迅雷任务
+		err = stlerr.ErrorWrap(xl.Client.DeleteTask(ctx, task.TaskInfo.ID, false))
+		if err != nil {
+			return err
+		}
+		err = stlerr.ErrorWrap(os.RemoveAll(task.SavePath()))
+		if err != nil {
+			return err
+		}
+
+		// 新建迅雷任务
+		dbTask := dbTasks[task.ID()]
+		availableLinks := util.FromJson[string, []string](*dbTask.AvailableLinks)
+		newTask, err := stlerr.ErrorWith(xl.Client.CreateTask(ctx, task.TaskInfo.Name, availableLinks[1]))
+		if err != nil {
+			return err
+		}
+
+		// 更新数据库
+		dbTask.Xlid = &newTask.ID
+		dbTask.AvailableLinks = stlval.Ptr(util.ToJson[string](availableLinks[1:]))
+		unavailableLinks := util.FromJson[string, []string](*dbTask.UnavailableLinks)
+		dbTask.UnavailableLinks = stlval.Ptr(util.ToJson[string](append(unavailableLinks, availableLinks[0])))
+		if err = d.MSave(dbTask); err != nil {
+			return err
 		}
 	}
 	return nil

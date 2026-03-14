@@ -1,42 +1,16 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
-
 	stlerr "github.com/kkkunny/stl/error"
+	stlval "github.com/kkkunny/stl/value"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gen"
+	"gorm.io/gorm"
 
-	"github.com/kkkunny/MDM/dal/db"
+	"github.com/kkkunny/MDM/config"
 )
 
-func removeGenFile(dir string) error {
-	fileInfos, err := os.ReadDir(dir)
-	if err != nil {
-		return err
-	}
-	for _, fileInfo := range fileInfos {
-		if !strings.HasSuffix(fileInfo.Name(), ".gen.go") {
-			continue
-		}
-		err = os.Remove(filepath.Join(dir, fileInfo.Name()))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func main() {
-	err := removeGenFile("dal/db/query")
-	if err != nil {
-		panic(err)
-	}
-	err = removeGenFile("dal/db/po")
-	if err != nil {
-		panic(err)
-	}
 	g := gen.NewGenerator(gen.Config{
 		OutPath:           "dal/db/query",
 		ModelPkgPath:      "po",
@@ -45,7 +19,8 @@ func main() {
 		FieldWithIndexTag: true,
 		FieldWithTypeTag:  true,
 	})
-	g.UseDB(stlerr.MustWith(db.ClientGetter()))
+	db := stlerr.MustWith(stlerr.ErrorWith(gorm.Open(sqlite.Open(stlval.Ternary(config.Release, "/config/mdm.db", "mdm.db")))))
+	g.UseDB(db)
 	models := g.GenerateAllTable()
 	g.ApplyBasic(models...)
 	g.Execute()

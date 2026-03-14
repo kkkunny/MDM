@@ -52,7 +52,12 @@ func OperateTasks(c *echo.Context) error {
 		if !ok {
 			continue
 		}
-		ids[i] = stlval.ValueOr(t.Xlid, t.Qbid)
+		if stlval.DerefPtrOr(t.Xlid, "") != "" {
+			ids[i] = *t.Xlid
+		}
+		if stlval.DerefPtrOr(t.Qbid, "") != "" {
+			ids[i] = *t.Qbid
+		}
 	}
 	err = operateTasksByRelIDs(ctx, req.GetOperate(), ids...)
 	if err != nil {

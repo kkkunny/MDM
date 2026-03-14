@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
+	stlval "github.com/kkkunny/stl/value"
 	"github.com/labstack/echo/v5"
 
 	"github.com/kkkunny/MDM/dal/db"
@@ -35,9 +36,9 @@ func CreateTask(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if err = d.Create(&po.Task{
+	if err = d.MSave(&po.Task{
 		ID:             &id,
-		AvailableLinks: util.ToJson[string](req.GetLinks()),
+		AvailableLinks: stlval.Ptr(util.ToJson[string](req.GetLinks())),
 	}); err != nil {
 		return err
 	}

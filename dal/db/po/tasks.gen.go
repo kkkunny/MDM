@@ -9,10 +9,10 @@ const TableNameTask = "tasks"
 // Task mapped from table <tasks>
 type Task struct {
 	ID               *string `gorm:"column:id;type:varchar(50)" json:"id"`
-	Xlid             string  `gorm:"column:xlid;type:varchar(50);not null;uniqueIndex:tasks_idx_xlid,priority:1;default:''   not null" json:"xlid"`
-	Qbid             string  `gorm:"column:qbid;type:varchar(50);not null;uniqueIndex:tasks__idx_qbid,priority:1;default:''   not null" json:"qbid"`
-	UnavailableLinks string  `gorm:"column:unavailable_links;type:TEXT;not null;default:'[]' not null" json:"unavailable_links"`
-	AvailableLinks   string  `gorm:"column:available_links;type:text;not null;default:'[]' not null" json:"available_links"`
+	Xlid             *string `gorm:"column:xlid;type:varchar(50)" json:"xlid"`
+	Qbid             *string `gorm:"column:qbid;type:varchar(50)" json:"qbid"`
+	UnavailableLinks *string `gorm:"column:unavailable_links;type:TEXT;default:'[]'" json:"unavailable_links"`
+	AvailableLinks   *string `gorm:"column:available_links;type:TEXT;default:'[]'" json:"available_links"`
 }
 
 // TableName Task's table name

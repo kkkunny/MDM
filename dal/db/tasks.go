@@ -6,6 +6,7 @@ import (
 
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
+	stlval "github.com/kkkunny/stl/value"
 	"gorm.io/gen"
 
 	"github.com/kkkunny/MDM/dal/db/po"
@@ -29,11 +30,11 @@ func NewTasksDal(ctx context.Context) (*TasksDal, error) {
 	}, nil
 }
 
-func (d *TasksDal) Create(task *po.Task) error {
-	return stlerr.ErrorWrap(d.query.Create(task))
+func (d *TasksDal) MSave(tasks ...*po.Task) error {
+	return stlerr.ErrorWrap(d.query.Save(tasks...))
 }
 
-func (d *TasksDal) MGetByIDs(ids ...string) (map[string]*po.Task, error) {
+func (d *TasksDal) findByIDs(q query.ITaskDo, ids ...string) query.ITaskDo {
 	pids := stlslices.Filter(ids, func(_ int, id string) bool {
 		return !strings.HasPrefix(id, dto.XLTaskIDPrefix) && !strings.HasPrefix(id, dto.QBTaskIDPrefix)
 	})
@@ -47,54 +48,63 @@ func (d *TasksDal) MGetByIDs(ids ...string) (map[string]*po.Task, error) {
 	}), func(_ int, id string) string {
 		return strings.TrimPrefix(id, dto.QBTaskIDPrefix)
 	})
-	if len(pids) == 0 && len(xlIDs) == 0 && len(qbIDs) == 0 {
-		return nil, nil
-	}
 
 	var conds []gen.Condition
 	if len(pids) > 0 {
-		conds = append(conds, d.query.Where(
-			query.Task.ID.In(pids...),
-		))
+		conds = append(conds, query.Task.ID.In(pids...))
 	}
 	if len(xlIDs) > 0 {
-		conds = append(conds, d.query.Where(
-			query.Task.Xlid.In(xlIDs...),
-		))
+		conds = append(conds, query.Task.Xlid.In(xlIDs...))
 	}
 	if len(qbIDs) > 0 {
-		conds = append(conds, d.query.Where(
-			query.Task.Qbid.In(qbIDs...),
-		))
+		conds = append(conds, query.Task.Qbid.In(qbIDs...))
 	}
 
-	tasks, err := stlerr.ErrorWith(d.query.Or(conds...).Find())
+	if len(conds) == 0 {
+		return q
+	} else if len(conds) == 1 {
+		return q.Where(conds[0])
+	} else {
+		for _, c := range conds {
+			q = q.Or(c)
+		}
+		return q
+	}
+}
+
+func (d *TasksDal) MGetByIDs(ids ...string) (map[string]*po.Task, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	tasks, err := stlerr.ErrorWith(d.findByIDs(d.query, ids...).Find())
 	if err != nil {
 		return nil, err
 	}
 	id2Tasks, xlid2Tasks, qbid2Tasks := make(map[string]*po.Task), make(map[string]*po.Task), make(map[string]*po.Task)
 	for _, t := range tasks {
 		id2Tasks[*t.ID] = t
-		if t.Xlid != "" {
-			xlid2Tasks[t.Xlid] = t
+		if stlval.DerefPtrOr(t.Xlid, "") != "" {
+			xlid2Tasks[*t.Xlid] = t
 		}
-		if t.Qbid != "" {
-			qbid2Tasks[t.Qbid] = t
+		if stlval.DerefPtrOr(t.Qbid, "") != "" {
+			qbid2Tasks[*t.Qbid] = t
 		}
 	}
 	taskMap := make(map[string]*po.Task)
 	for _, id := range ids {
-		t, ok := id2Tasks[id]
+		relID := strings.TrimPrefix(strings.TrimPrefix(id, dto.XLTaskIDPrefix), dto.QBTaskIDPrefix)
+		t, ok := id2Tasks[relID]
 		if ok {
 			taskMap[id] = t
 			continue
 		}
-		t, ok = xlid2Tasks[id]
+		t, ok = xlid2Tasks[relID]
 		if ok {
 			taskMap[id] = t
 			continue
 		}
-		t, ok = qbid2Tasks[id]
+		t, ok = qbid2Tasks[relID]
 		if ok {
 			taskMap[id] = t
 			continue
@@ -104,40 +114,10 @@ func (d *TasksDal) MGetByIDs(ids ...string) (map[string]*po.Task, error) {
 }
 
 func (d *TasksDal) DelByIDs(ids ...string) error {
-	pids := stlslices.Filter(ids, func(_ int, id string) bool {
-		return !strings.HasPrefix(id, dto.XLTaskIDPrefix) && !strings.HasPrefix(id, dto.QBTaskIDPrefix)
-	})
-	xlIDs := stlslices.Map(stlslices.Filter(ids, func(_ int, id string) bool {
-		return strings.HasPrefix(id, dto.XLTaskIDPrefix)
-	}), func(_ int, id string) string {
-		return strings.TrimPrefix(id, dto.XLTaskIDPrefix)
-	})
-	qbIDs := stlslices.Map(stlslices.Filter(ids, func(_ int, id string) bool {
-		return strings.HasPrefix(id, dto.QBTaskIDPrefix)
-	}), func(_ int, id string) string {
-		return strings.TrimPrefix(id, dto.QBTaskIDPrefix)
-	})
-	if len(pids) == 0 && len(xlIDs) == 0 && len(qbIDs) == 0 {
+	if len(ids) == 0 {
 		return nil
 	}
 
-	var conds []gen.Condition
-	if len(pids) > 0 {
-		conds = append(conds, d.query.Where(
-			query.Task.ID.In(pids...),
-		))
-	}
-	if len(xlIDs) > 0 {
-		conds = append(conds, d.query.Where(
-			query.Task.Xlid.In(xlIDs...),
-		))
-	}
-	if len(qbIDs) > 0 {
-		conds = append(conds, d.query.Where(
-			query.Task.Qbid.In(qbIDs...),
-		))
-	}
-
-	_, err := stlerr.ErrorWith(d.query.Or(conds...).Delete())
+	_, err := stlerr.ErrorWith(d.findByIDs(d.query, ids...).Delete())
 	return err
 }

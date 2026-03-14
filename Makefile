@@ -9,6 +9,10 @@ gen_idl: model/idl
 	@-rm -rf model/vo
 	@protoc -I=model/idl/vo --go_out=model model/idl/vo/task.proto
 	@protoc-go-inject-tag -input=model/vo/*.go
+	@-rm -rf dal/db/po
+	@-mdkir -p dal/db/po
+	@-rm -rf dal/db/query
+	@-mdkir -p dal/db/query
 	@go run cmd/main.go
 	@echo "Done."
 
