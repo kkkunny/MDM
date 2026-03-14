@@ -12,12 +12,13 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/kkkunny/MDM/config"
+	"github.com/kkkunny/MDM/dal/db/po"
 	"github.com/kkkunny/MDM/dal/db/query"
 )
 
 var (
 	ClientGetter = lazy.Getter(func() (*gorm.DB, error) {
-		return stlerr.ErrorWith(gorm.Open(
+		db, err := stlerr.ErrorWith(gorm.Open(
 			sqlite.Open(stlval.Ternary(config.Release, "/config/mdm.db", "mdm.db")),
 			&gorm.Config{
 				Logger: logger.New(new(customLogger), logger.Config{
@@ -27,6 +28,11 @@ var (
 				}),
 			},
 		))
+		if err != nil {
+			return nil, err
+		}
+		err = stlerr.ErrorWrap(db.AutoMigrate(new(po.Task)))
+		return db, err
 	})
 	QueryGetter = lazy.Getter(func() (*query.Query, error) {
 		cli, err := ClientGetter()
