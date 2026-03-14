@@ -179,23 +179,23 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 		}
 
 		// 迁移文件
+		resources, err := stlerr.ErrorWith(xl.Client.ListResource(ctx, task.URL))
+		if err != nil {
+			return err
+		}
+		singleFile := !stlslices.First(resources).IsDir()
+		filename := stlslices.First(resources).GetName()
+		fromPath := task.SavePath()
+		if singleFile {
+			// 单文件时迅雷会自动创建一个文件夹
+			fromPath = filepath.Join(fromPath, filename)
+		}
+		toPath := filepath.Join(config.DownloadCompleteDir, filename)
 		exist, err := stlerr.ErrorWith(stlos.Exist(task.SavePath()))
 		if err != nil {
 			return err
 		}
 		if exist {
-			resources, err := stlerr.ErrorWith(xl.Client.ListResource(ctx, task.URL))
-			if err != nil {
-				return err
-			}
-			singleFile := !stlslices.First(resources).IsDir()
-			filename := stlslices.First(resources).GetName()
-			fromPath := task.SavePath()
-			if singleFile {
-				// 单文件时迅雷会自动创建一个文件夹
-				fromPath = filepath.Join(fromPath, filename)
-			}
-			toPath := filepath.Join(config.DownloadCompleteDir, filename)
 			err = stlerr.ErrorWrap(os.Rename(fromPath, toPath))
 			if err != nil {
 				_ = config.Logger.Warnf("tmi=%s, fromPath=%s, toPath=%s, xltask=%s", util.ToJson[string](tmi), fromPath, toPath, util.ToJson[string](task.TaskInfo))
@@ -251,7 +251,7 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 			fallbackReq := &vo.TaskDownloadCompletedFallbackRequest{
 				Name:     task.Name(),
 				Hash:     task.Hash(),
-				SavePath: task.SavePath(),
+				SavePath: toPath,
 			}
 			httpReq, err := stlerr.ErrorWith(http.NewRequestWithContext(ctx, http.MethodPost, config.TaskDownloadCompletedFallbackAddr, strings.NewReader(util.ToJson[string](fallbackReq))))
 			if err != nil {
