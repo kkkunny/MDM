@@ -4,17 +4,18 @@ import (
 	"context"
 	"net/http"
 	"strings"
-	"sync"
 
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
 	stlval "github.com/kkkunny/stl/value"
-	"github.com/kkkunny/xunlei/dto"
+	xldto "github.com/kkkunny/xunlei/dto"
 	"github.com/labstack/echo/v5"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/kkkunny/MDM/dal/db"
 	"github.com/kkkunny/MDM/dal/qb"
 	"github.com/kkkunny/MDM/dal/xl"
+	"github.com/kkkunny/MDM/model/dto"
 	"github.com/kkkunny/MDM/model/vo"
 	"github.com/kkkunny/MDM/util"
 )
@@ -28,36 +29,65 @@ func OperateTasks(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, err)
 	}
 
-	xlIDs := stlslices.FlatMap(req.GetIds(), func(_ int, id string) []string {
-		if !strings.HasPrefix(id, "XL|") {
-			return nil
-		}
-		return []string{strings.TrimPrefix(id, "XL|")}
-	})
-	qbIDs := stlslices.FlatMap(req.GetIds(), func(_ int, id string) []string {
-		if !strings.HasPrefix(id, "QB|") {
-			return nil
-		}
-		return []string{strings.TrimPrefix(id, "QB|")}
-	})
-
-	var wg sync.WaitGroup
-
-	var xlErr error
-	wg.Go(func() {
-		xlErr = operateXLTask(ctx, req.GetOperate(), xlIDs...)
-	})
-
-	var qbErr error
-	wg.Go(func() {
-		qbErr = operateQBTask(ctx, req.GetOperate(), qbIDs...)
-	})
-
-	wg.Wait()
-	if xlErr != nil || qbErr != nil {
-		return stlval.ValueOr(xlErr, qbErr)
+	if stlslices.Contain([]vo.Operate{
+		vo.Operate_OpDelete,
+		vo.Operate_OpResume,
+		vo.Operate_OpPause,
+		vo.Operate_OpRetry,
+	}, req.GetOperate()) || len(req.Ids) == 0 {
+		return util.NewHttpError(http.StatusBadRequest, err)
 	}
+
+	ids := req.GetIds()
+	d, err := db.NewTasksDal(ctx)
+	if err != nil {
+		return err
+	}
+	tasks, err := d.MGetByIDs(ids...)
+	if err != nil {
+		return err
+	}
+	for i, id := range ids {
+		t, ok := tasks[id]
+		if !ok {
+			continue
+		}
+		ids[i] = stlval.ValueOr(t.Xlid, t.Qbid)
+	}
+	err = operateTasksByRelIDs(ctx, req.GetOperate(), ids...)
+	if err != nil {
+		return err
+	}
+
 	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
+}
+
+func operateTasksByRelIDs(ctx context.Context, op vo.Operate, ids ...string) error {
+	xlIDs := stlslices.Map(stlslices.Filter(ids, func(_ int, id string) bool {
+		return strings.HasPrefix(id, dto.XLTaskIDPrefix)
+	}), func(_ int, id string) string {
+		return strings.TrimPrefix(id, dto.XLTaskIDPrefix)
+	})
+	qbIDs := stlslices.Map(stlslices.Filter(ids, func(_ int, id string) bool {
+		return strings.HasPrefix(id, dto.QBTaskIDPrefix)
+	}), func(_ int, id string) string {
+		return strings.TrimPrefix(id, dto.QBTaskIDPrefix)
+	})
+	if len(xlIDs) == 0 && len(qbIDs) == 0 {
+		return nil
+	}
+
+	eg, egCtx := errgroup.WithContext(ctx)
+
+	eg.Go(func() error {
+		return operateXLTask(egCtx, op, xlIDs...)
+	})
+
+	eg.Go(func() error {
+		return operateQBTask(egCtx, op, qbIDs...)
+	})
+
+	return eg.Wait()
 }
 
 func operateXLTask(ctx context.Context, op vo.Operate, ids ...string) (err error) {
@@ -103,11 +133,11 @@ func operateXLTask(ctx context.Context, op vo.Operate, ids ...string) (err error
 		var eg errgroup.Group
 		for _, id := range ids {
 			eg.Go(func() error {
-				tasks, err := stlerr.ErrorWith(xl.Client.ListTasks(ctx, dto.TaskPhaseTypeError))
+				tasks, err := stlerr.ErrorWith(xl.Client.ListTasks(ctx, xldto.TaskPhaseTypeError))
 				if err != nil {
 					return err
 				}
-				task, ok := stlslices.FindFirst(tasks, func(_ int, task *dto.TaskInfo) bool {
+				task, ok := stlslices.FindFirst(tasks, func(_ int, task *xldto.TaskInfo) bool {
 					return task.ID == id
 				})
 				if !ok {

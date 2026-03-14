@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"errors"
 	"io/fs"
 	"net/http"
 	"os"
@@ -16,8 +17,10 @@ import (
 	stlos "github.com/kkkunny/stl/os"
 	stlval "github.com/kkkunny/stl/value"
 	xldto "github.com/kkkunny/xunlei/dto"
+	"gorm.io/gorm"
 
 	"github.com/kkkunny/MDM/config"
+	"github.com/kkkunny/MDM/dal/db"
 	"github.com/kkkunny/MDM/dal/qb"
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
@@ -199,6 +202,15 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 			if err != nil {
 				return err
 			}
+		}
+
+		// 删除数据库
+		d, err := db.NewTasksDal(ctx)
+		if err != nil {
+			return err
+		}
+		if err = d.DelByIDs(task.ID()); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
 		}
 
 		// 删除迅雷任务

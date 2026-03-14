@@ -5,11 +5,16 @@ import (
 	"time"
 
 	"github.com/autobrr/go-qbittorrent"
+	stlmaps "github.com/kkkunny/stl/container/maps"
 	stlslices "github.com/kkkunny/stl/container/slices"
 	stlerr "github.com/kkkunny/stl/error"
 	stlsync "github.com/kkkunny/stl/sync"
 	xldto "github.com/kkkunny/xunlei/dto"
 
+	"golang.org/x/sync/errgroup"
+
+	"github.com/kkkunny/MDM/dal/db"
+	"github.com/kkkunny/MDM/dal/db/po"
 	"github.com/kkkunny/MDM/dal/qb"
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
@@ -55,21 +60,64 @@ func (tc *_TasksCache) GetLatest(ctx context.Context) ([]dto.Task, error) {
 	tc.lock.Lock()
 	defer tc.lock.Unlock()
 
-	xlTasks, err := stlerr.ErrorWith(xl.Client.ListTasks(ctx))
-	if err != nil {
-		return nil, err
-	}
-	tasks := stlslices.Map(xlTasks, func(_ int, xlt *xldto.TaskInfo) dto.Task {
-		return dto.TaskFromXL(xlt)
+	// 查询下游服务
+	eg, egCtx := errgroup.WithContext(ctx)
+
+	var xlTasks []dto.Task
+	eg.Go(func() error {
+		tasks, err := stlerr.ErrorWith(xl.Client.ListTasks(egCtx))
+		if err != nil {
+			return err
+		}
+		xlTasks = stlslices.Map(tasks, func(_ int, xlt *xldto.TaskInfo) dto.Task {
+			return dto.TaskFromXL(xlt)
+		})
+		return nil
 	})
 
-	qbTasks, err := stlerr.ErrorWith(qb.Client.GetTorrentsCtx(ctx, qbittorrent.TorrentFilterOptions{}))
+	var qbTasks []dto.Task
+	eg.Go(func() error {
+		tasks, err := stlerr.ErrorWith(qb.Client.GetTorrentsCtx(egCtx, qbittorrent.TorrentFilterOptions{}))
+		if err != nil {
+			return err
+		}
+		qbTasks = stlslices.Map(tasks, func(_ int, qbt qbittorrent.Torrent) dto.Task {
+			return dto.TaskFromQB(&qbt)
+		})
+		return nil
+	})
+
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+	tasks := stlslices.Union(xlTasks, qbTasks)
+
+	// 查询数据库
+	d, err := db.NewTasksDal(ctx)
 	if err != nil {
 		return nil, err
 	}
-	tasks = append(tasks, stlslices.Map(qbTasks, func(_ int, qbt qbittorrent.Torrent) dto.Task {
-		return dto.TaskFromQB(&qbt)
-	})...)
+	dbTasks, err := d.MGetByIDs(stlslices.Map(tasks, func(_ int, t dto.Task) string { return t.ID() })...)
+	if err != nil {
+		return nil, err
+	}
+
+	// 回填
+	for _, t := range tasks {
+		id := t.ID()
+		qbTask, ok := dbTasks[id]
+		if !ok {
+			continue
+		}
+		t.SetDB(qbTask)
+		delete(dbTasks, id)
+	}
+
+	// 删除冗余数据库数据
+	needDelIDs := stlmaps.ToSlice(dbTasks, func(_ string, t *po.Task) string { return *t.ID })
+	if err = stlerr.ErrorWrap(d.DelByIDs(needDelIDs...)); err != nil {
+		return nil, err
+	}
 
 	tc.data = tasks
 	tc.updateAt = time.Now()

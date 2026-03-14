@@ -457,7 +457,7 @@ func (x *ListTasksResponse) GetTasks() []*Task {
 
 type CreateTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Link          string                 `protobuf:"bytes,1,opt,name=link,proto3" json:"link,omitempty"` // 下载链接
+	Links         []string               `protobuf:"bytes,1,rep,name=links,proto3" json:"links,omitempty"` // 下载链接，至少需要存在一个链接，其他的作为备份链接
 	Name          string                 `protobuf:"bytes,10,opt,name=name,proto3" json:"name,omitempty"`
 	Category      *string                `protobuf:"bytes,11,opt,name=category,proto3,oneof" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -494,11 +494,11 @@ func (*CreateTaskRequest) Descriptor() ([]byte, []int) {
 	return file_task_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *CreateTaskRequest) GetLink() string {
+func (x *CreateTaskRequest) GetLinks() []string {
 	if x != nil {
-		return x.Link
+		return x.Links
 	}
-	return ""
+	return nil
 }
 
 func (x *CreateTaskRequest) GetName() string {
@@ -769,9 +769,9 @@ const file_task_proto_rawDesc = "" +
 	"\x04size\x18\x02 \x01(\x04R\x04size\"5\n" +
 	"\x11ListTasksResponse\x12 \n" +
 	"\x05tasks\x18\x01 \x03(\v2\n" +
-	".task.TaskR\x05tasks\"i\n" +
-	"\x11CreateTaskRequest\x12\x12\n" +
-	"\x04link\x18\x01 \x01(\tR\x04link\x12\x12\n" +
+	".task.TaskR\x05tasks\"k\n" +
+	"\x11CreateTaskRequest\x12\x14\n" +
+	"\x05links\x18\x01 \x03(\tR\x05links\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x1f\n" +
 	"\bcategory\x18\v \x01(\tH\x00R\bcategory\x88\x01\x01B\v\n" +

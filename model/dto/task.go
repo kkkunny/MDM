@@ -11,11 +11,13 @@ import (
 	"github.com/kkkunny/xunlei/dto"
 
 	"github.com/kkkunny/MDM/config"
+	"github.com/kkkunny/MDM/dal/db/po"
 	"github.com/kkkunny/MDM/model/vo"
 )
 
 // Task 任务信息
 type Task interface {
+	ID() string
 	Hash() string
 	Name() string
 	Category() string
@@ -24,10 +26,21 @@ type Task interface {
 	Speed() stlos.Size
 	CreatedAt() time.Time
 	ToVO() *vo.Task
+	SetDB(task *po.Task)
 }
 
+const XLTaskIDPrefix = "XL|"
+
 type XLTask struct {
+	task *po.Task
 	*dto.TaskInfo
+}
+
+func (t XLTask) ID() string {
+	if t.task != nil {
+		return *t.task.ID
+	}
+	return fmt.Sprintf("%s%s", XLTaskIDPrefix, t.TaskInfo.ID)
 }
 
 func (t XLTask) SavePath() string {
@@ -88,7 +101,7 @@ var xlTaskCategoryMatch = regexp.MustCompile(`\[\[(.*?)]]\|(.+)`)
 
 func (t XLTask) ToVO() *vo.Task {
 	vt := &vo.Task{
-		Id:        fmt.Sprintf("XL|%s", t.ID),
+		Id:        t.ID(),
 		Name:      t.Name(),
 		Phase:     t.Phase(),
 		Size:      uint64(t.FileSize),
@@ -114,8 +127,22 @@ func (t XLTask) ToVO() *vo.Task {
 	return vt
 }
 
+func (t *XLTask) SetDB(task *po.Task) {
+	t.task = task
+}
+
+const QBTaskIDPrefix = "QB|"
+
 type QBTask struct {
+	task *po.Task
 	*qbittorrent.Torrent
+}
+
+func (t QBTask) ID() string {
+	if t.task != nil {
+		return *t.task.ID
+	}
+	return fmt.Sprintf("%s%s", QBTaskIDPrefix, t.Hash())
 }
 
 func (t QBTask) SavePath() string {
@@ -178,7 +205,7 @@ func (t QBTask) CreatedAt() time.Time {
 
 func (t QBTask) ToVO() *vo.Task {
 	vt := &vo.Task{
-		Id:        fmt.Sprintf("QB|%s", t.Hash()),
+		Id:        t.ID(),
 		Name:      t.Name(),
 		Phase:     t.Phase(),
 		Size:      uint64(t.Size),
@@ -214,4 +241,8 @@ func (t QBTask) ToVO() *vo.Task {
 		}
 	}
 	return vt
+}
+
+func (t *QBTask) SetDB(task *po.Task) {
+	t.task = task
 }

@@ -5,15 +5,22 @@ go 1.25.6
 require (
 	github.com/anacrolix/torrent v1.61.0
 	github.com/autobrr/go-qbittorrent v1.14.0
+	github.com/duke-git/lancet/v2 v2.3.9
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/google/uuid v1.6.0
 	github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3
 	github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24
 	github.com/labstack/echo/v5 v5.0.4
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.20.0
 	google.golang.org/protobuf v1.36.10
+	gorm.io/driver/sqlite v1.6.0
+	gorm.io/gen v0.3.27
+	gorm.io/gorm v1.31.1
+	gorm.io/plugin/dbresolver v1.6.2
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/anacrolix/generics v0.1.1-0.20251125230353-15d98d46693b // indirect
 	github.com/anacrolix/missinggo v1.3.0 // indirect
@@ -24,6 +31,7 @@ require (
 	github.com/elastic/go-freelru v0.16.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/pprof v0.0.0-20240910150728-a0b0bb1d4134 // indirect
 	github.com/gookit/color v1.5.4 // indirect
@@ -31,10 +39,13 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imroc/req/v3 v3.48.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-sqlite3 v1.14.34 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
@@ -57,5 +68,8 @@ require (
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+	gorm.io/datatypes v1.2.4 // indirect
+	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/hints v1.1.0 // indirect
 	lukechampine.com/blake3 v1.1.6 // indirect
 )

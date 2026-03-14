@@ -55,7 +55,7 @@ message ListTasksResponse {
 }
 
 message CreateTaskRequest {
-  string link = 1;  // 下载链接
+  repeated string links = 1;  // 下载链接，至少需要存在一个链接，其他的作为备份链接
   string name = 10;
   optional string category = 11;
 }
