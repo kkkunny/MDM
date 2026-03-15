@@ -240,12 +240,6 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 			return err
 		}
 
-		// 迁移种子文件
-		err = stlerr.ErrorWrap(os.Rename(tp, filepath.Join(config.TorrentDir, task.Hash()+".torrent")))
-		if err != nil {
-			_ = config.Logger.Warn(err)
-		}
-
 		// 回调
 		if config.TaskDownloadCompletedFallbackAddr != "" {
 			fallbackReq := &vo.TaskDownloadCompletedFallbackRequest{
