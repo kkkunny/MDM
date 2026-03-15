@@ -28,6 +28,7 @@ import (
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
 	"github.com/kkkunny/MDM/model/vo"
+	"github.com/kkkunny/MDM/service/xltorrent"
 	"github.com/kkkunny/MDM/util"
 )
 
@@ -146,17 +147,8 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
 		return t.Hash(), tuple.Pack3[*dto.XLTask, string, *metainfo.Info](t, "", nil)
 	})
-	fileEntries, err := stlerr.ErrorWith(os.ReadDir(config.XLBtDir))
-	if err != nil {
-		return err
-	}
-	for _, fileEntry := range fileEntries {
-		fp := filepath.Join(config.XLBtDir, fileEntry.Name())
-		tmi, err := stlerr.ErrorWith(metainfo.LoadFromFile(fp))
-		if err != nil {
-			_ = config.Logger.Debug(err)
-			continue
-		}
+	torrentMIs := xltorrent.TorrentsCache.Get()
+	for fp, tmi := range torrentMIs.Iter2() {
 		hash := tmi.HashInfoBytes().HexString()
 		tt, ok := hash2TaskAndTorrent[hash]
 		if !ok {
@@ -286,49 +278,12 @@ func Clogged(ctx context.Context, tasks ...*dto.XLTask) error {
 		return stlmaps.ContainKey(dbTasks, t.ID())
 	})
 
+	if len(tasks) == 0 {
+		return nil
+	}
 	_ = config.Logger.Infof("tasks `%v` download clogged, need using backup link", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
 
-	// 查找种子文件
-	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
-		return t.Hash(), tuple.Pack3[*dto.XLTask, string, *metainfo.Info](t, "", nil)
-	})
-	fileEntries, err := stlerr.ErrorWith(os.ReadDir(config.XLBtDir))
-	if err != nil {
-		return err
-	}
-	for _, fileEntry := range fileEntries {
-		fp := filepath.Join(config.XLBtDir, fileEntry.Name())
-		tmi, err := stlerr.ErrorWith(metainfo.LoadFromFile(fp))
-		if err != nil {
-			_ = config.Logger.Debug(err)
-			continue
-		}
-		hash := tmi.HashInfoBytes().HexString()
-		tt, ok := hash2TaskAndTorrent[hash]
-		if !ok {
-			continue
-		}
-		tmiInfo, err := stlerr.ErrorWith(tmi.UnmarshalInfo())
-		if err != nil {
-			_ = config.Logger.Debug(err)
-			continue
-		}
-		hash2TaskAndTorrent[hash] = tuple.Pack3(tt.E1(), fp, &tmiInfo)
-	}
-
-	for _, taskAndTorrentPath := range hash2TaskAndTorrent {
-		task, tp, _ := taskAndTorrentPath.Unpack()
-		if tp == "" {
-			_ = config.Logger.Warnf("can not find torrent for task `%s`", task.Name())
-			continue
-		}
-
-		// 删除种子文件
-		err = stlerr.ErrorWrap(os.Remove(tp))
-		if err != nil {
-			_ = config.Logger.Warn(err)
-		}
-
+	for _, task := range tasks {
 		// 删除迅雷任务
 		err = stlerr.ErrorWrap(xl.Client.DeleteTask(ctx, task.TaskInfo.ID, false))
 		if err != nil {

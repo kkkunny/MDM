@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	XLDownloadDirByXL = "/迅雷下载"  // 迅雷视角的迅雷下载目录
+	XLDownloadDirByXL = "/迅雷下载"      // 迅雷视角的迅雷下载目录
 	QBDownloadDirByQB = "/downloads" // qb视角的qb下载目录
 )
 
