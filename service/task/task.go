@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anacrolix/torrent/metainfo"
 	stlmaps "github.com/kkkunny/stl/container/maps"
 	stlslices "github.com/kkkunny/stl/container/slices"
 	"github.com/kkkunny/stl/container/tuple"
@@ -144,30 +143,24 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 	_ = config.Logger.Infof("tasks `%v` download completed", stlslices.Map(tasks, func(_ int, t *dto.XLTask) string { return t.Name() }))
 
 	// 查找种子文件
-	hash2TaskAndTorrent := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple3[*dto.XLTask, string, *metainfo.Info]) {
-		return t.Hash(), tuple.Pack3[*dto.XLTask, string, *metainfo.Info](t, "", nil)
+	hash2TaskAndTorrentPath := stlslices.ToMap(tasks, func(t *dto.XLTask) (string, tuple.Tuple2[*dto.XLTask, string]) {
+		return t.Hash(), tuple.Pack2[*dto.XLTask, string](t, "")
 	})
 	torrentMIs := xltorrent.TorrentsCache.Get()
 	for fp, tmi := range torrentMIs.Iter2() {
 		hash := tmi.HashInfoBytes().HexString()
-		tt, ok := hash2TaskAndTorrent[hash]
+		tt, ok := hash2TaskAndTorrentPath[hash]
 		if !ok {
 			continue
 		}
-		tmiInfo, err := stlerr.ErrorWith(tmi.UnmarshalInfo())
-		if err != nil {
-			_ = config.Logger.Debug(err)
-			continue
-		}
-		hash2TaskAndTorrent[hash] = tuple.Pack3(tt.E1(), fp, &tmiInfo)
+		hash2TaskAndTorrentPath[hash] = tuple.Pack2(tt.E1(), fp)
 	}
 
 	// 迁移
-	for _, taskAndTorrentPath := range hash2TaskAndTorrent {
-		task, tp, tmi := taskAndTorrentPath.Unpack()
+	for _, taskAndTorrentPath := range hash2TaskAndTorrentPath {
+		task, tp := taskAndTorrentPath.Unpack()
 		if tp == "" {
 			_ = config.Logger.Warnf("can not find torrent for task `%s`", task.Name())
-			continue
 		}
 
 		// 迁移文件
@@ -190,7 +183,7 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 		if exist {
 			err = stlerr.ErrorWrap(os.Rename(fromPath, toPath))
 			if err != nil {
-				_ = config.Logger.Warnf("tmi=%s, fromPath=%s, toPath=%s, xltask=%s", util.ToJson[string](tmi), fromPath, toPath, util.ToJson[string](task.TaskInfo))
+				_ = config.Logger.Warnf("fromPath=%s, toPath=%s, xltask=%s", fromPath, toPath, util.ToJson[string](task.TaskInfo))
 				return err
 			}
 			// 单文件时迅雷会自动创建一个文件夹，需要删除
@@ -208,10 +201,17 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 			existedQbTask, _ = existedTask.(*dto.QBTask)
 		}
 		if existedQbTask == nil {
-			err = stlerr.ErrorWrap(qb.Client.AddTorrentFromFileCtx(ctx, tp, map[string]string{
-				"skip_checking": "true",
-				"rename":        task.Name(),
-			}))
+			if tp != "" {
+				err = stlerr.ErrorWrap(qb.Client.AddTorrentFromFileCtx(ctx, tp, map[string]string{
+					"skip_checking": "true",
+					"rename":        task.Name(),
+				}))
+			} else {
+				err = stlerr.ErrorWrap(qb.Client.AddTorrentFromUrlCtx(ctx, task.URL, map[string]string{
+					"skip_checking": "true",
+					"rename":        task.Name(),
+				}))
+			}
 			if err != nil {
 				return err
 			}
