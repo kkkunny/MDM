@@ -147,7 +147,7 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 		return t.Hash(), tuple.Pack2[*dto.XLTask, string](t, "")
 	})
 	torrentMIs := xltorrent.TorrentsCache.Get()
-	for fp, tmi := range torrentMIs.Iter2() {
+	for fp, tmi := range torrentMIs {
 		hash := tmi.HashInfoBytes().HexString()
 		tt, ok := hash2TaskAndTorrentPath[hash]
 		if !ok {

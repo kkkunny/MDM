@@ -1,105 +1,59 @@
 package xltorrent
 
 import (
+	"maps"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/fsnotify/fsnotify"
-	"github.com/kkkunny/stl/container/hashmap"
-	stlmaps "github.com/kkkunny/stl/container/maps"
 	stlerr "github.com/kkkunny/stl/error"
+	stlsync "github.com/kkkunny/stl/sync"
 
 	"github.com/kkkunny/MDM/config"
-	"github.com/kkkunny/MDM/util"
 )
 
 var TorrentsCache = stlerr.MustWith(NewTorrentsCache())
 
 type _TorrentsCache struct {
-	watcher *fsnotify.Watcher
-	data    stlmaps.MapObj[string, *metainfo.MetaInfo]
+	locker stlsync.RWLocker
+	data   map[string]*metainfo.MetaInfo
 }
 
 func NewTorrentsCache() (*_TorrentsCache, error) {
-	watcher, err := stlerr.ErrorWith(fsnotify.NewWatcher())
-	if err != nil {
-		return nil, err
-	}
-	err = stlerr.ErrorWrap(watcher.Add(config.XLBtDir))
-	if err != nil {
-		return nil, err
-	}
 	tc := &_TorrentsCache{
-		watcher: watcher,
-		data:    hashmap.ThreadSafeStdWith[string, *metainfo.MetaInfo](),
+		locker: new(sync.RWMutex),
+		data:   make(map[string]*metainfo.MetaInfo),
 	}
-	return tc, tc.init()
+	return tc, tc.Scan()
 }
 
-func (tc *_TorrentsCache) init() error {
+func (tc *_TorrentsCache) Scan() error {
+	tc.locker.Lock()
+	defer tc.locker.Unlock()
+
+	tc.data = make(map[string]*metainfo.MetaInfo)
+
 	fileEntries, err := stlerr.ErrorWith(os.ReadDir(config.XLBtDir))
 	if err != nil {
 		return err
 	}
+	current := make(map[string]struct{}, len(fileEntries))
 	for _, fileEntry := range fileEntries {
 		fp := filepath.Join(config.XLBtDir, fileEntry.Name())
+		current[fp] = struct{}{}
 		mi, err := stlerr.ErrorWith(metainfo.LoadFromFile(fp))
 		if err != nil {
 			_ = config.Logger.Warn(err)
 			continue
 		}
-		tc.data.Set(fp, mi)
+		tc.data[fp] = mi
 	}
-
-	go func() {
-		for {
-			select {
-			case event, ok := <-tc.watcher.Events:
-				if !ok {
-					return
-				}
-				_ = config.Logger.Debug(util.ToJson[string](event))
-				var err error
-				switch {
-				case event.Has(fsnotify.Create):
-					err = tc.onCreate(event.Name)
-				case event.Has(fsnotify.Remove):
-					err = tc.onRemove(event.Name)
-				}
-				if err != nil {
-					_ = config.Logger.Error(err)
-				}
-			case err, ok := <-tc.watcher.Errors:
-				if !ok {
-					return
-				}
-				_ = config.Logger.Error(stlerr.ErrorWrap(err))
-			}
-		}
-	}()
-
 	return nil
 }
 
-func (tc *_TorrentsCache) Close() error {
-	return stlerr.ErrorWrap(tc.watcher.Close())
-}
-
-func (tc *_TorrentsCache) Get() stlmaps.MapObj[string, *metainfo.MetaInfo] {
-	return tc.data
-}
-
-func (tc *_TorrentsCache) onCreate(path string) error {
-	mi, err := stlerr.ErrorWith(metainfo.LoadFromFile(path))
-	if err != nil {
-		return err
-	}
-	tc.data.Set(path, mi)
-	return nil
-}
-
-func (tc *_TorrentsCache) onRemove(path string) error {
-	tc.data.Remove(path)
-	return nil
+func (tc *_TorrentsCache) Get() map[string]*metainfo.MetaInfo {
+	tc.locker.RLock()
+	defer tc.locker.RUnlock()
+	return maps.Clone(tc.data)
 }

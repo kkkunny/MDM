@@ -10,10 +10,12 @@ import (
 	stlval "github.com/kkkunny/stl/value"
 	"github.com/labstack/echo/v5"
 
+	"github.com/kkkunny/MDM/config"
 	"github.com/kkkunny/MDM/dal/db"
 	"github.com/kkkunny/MDM/dal/db/po"
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/vo"
+	"github.com/kkkunny/MDM/service/xltorrent"
 	"github.com/kkkunny/MDM/util"
 )
 
@@ -51,6 +53,13 @@ func CreateTask(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	go func() {
+		if err = xltorrent.TorrentsCache.Scan(); err != nil {
+			_ = config.Logger.Warn(err)
+		}
+	}()
+
 	return c.JSON(http.StatusOK, &vo.CreateTaskResponse{
 		Id: xlTask.ID,
 	})
