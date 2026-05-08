@@ -1,5 +1,5 @@
 SVR_ROOT_PATH = $(realpath .)
-WEB_ROOT_PATH = $(realpath ../../../../dart/mdm)
+WEB_ROOT_PATH = $(realpath ./web)
 
 install_deps:
 	go install github.com/favadi/protoc-go-inject-tag@latest
@@ -19,5 +19,5 @@ gen_idl: model/idl
 gen_web: $(WEB_ROOT_PATH)
 	@echo "Updating web ..."
 	@-rm -rf $(SVR_ROOT_PATH)/static
-	cd $(WEB_ROOT_PATH) && flutter build web && mv build/web $(SVR_ROOT_PATH)/static
+	cd $(WEB_ROOT_PATH) && flutter pub get && flutter build web && mv build/web $(SVR_ROOT_PATH)/static
 	@echo "Done."

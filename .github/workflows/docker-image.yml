@@ -12,6 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2.21.0
+        with:
+          channel: stable
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+
+      - name: Build WEB
+        run: make gen_web
+
       - name: Log into registry kkkunny
         uses: docker/login-action@v3.3.0
         with:
