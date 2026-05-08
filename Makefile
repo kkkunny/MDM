@@ -1,5 +1,5 @@
 SVR_ROOT_PATH = $(realpath .)
-WEB_ROOT_PATH = $(realpath ../../../../dart/mdm)
+WEB_ROOT_PATH = $(realpath ./web)
 
 install_deps:
 	go install github.com/favadi/protoc-go-inject-tag@latest
