@@ -436,12 +436,12 @@ class ListTasksResponse extends $pb.GeneratedMessage {
 
 class CreateTaskRequest extends $pb.GeneratedMessage {
   factory CreateTaskRequest({
-    $core.String? link,
+    $core.Iterable<$core.String>? links,
     $core.String? name,
     $core.String? category,
   }) {
     final result = create();
-    if (link != null) result.link = link;
+    if (links != null) result.links.addAll(links);
     if (name != null) result.name = name;
     if (category != null) result.category = category;
     return result;
@@ -460,7 +460,7 @@ class CreateTaskRequest extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'CreateTaskRequest',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'task'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'link')
+    ..pPS(1, _omitFieldNames ? '' : 'links')
     ..aOS(10, _omitFieldNames ? '' : 'name')
     ..aOS(11, _omitFieldNames ? '' : 'category')
     ..hasRequiredFields = false;
@@ -487,13 +487,7 @@ class CreateTaskRequest extends $pb.GeneratedMessage {
   static CreateTaskRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get link => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set link($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasLink() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearLink() => $_clearField(1);
+  $pb.PbList<$core.String> get links => $_getList(0);
 
   @$pb.TagNumber(10)
   $core.String get name => $_getSZ(1);
@@ -635,16 +629,14 @@ class OperateTasksRequest extends $pb.GeneratedMessage {
   void clearOperate() => $_clearField(2);
 }
 
-class StatInfoResponse extends $pb.GeneratedMessage {
-  factory StatInfoResponse({
-    $fixnum.Int64? taskCount,
-    $fixnum.Int64? dlCount,
-    $fixnum.Int64? dlSpeed,
-    $fixnum.Int64? ulCount,
-    $fixnum.Int64? ulSpeed,
+class HomepageResponse extends $pb.GeneratedMessage {
+  factory HomepageResponse({
+    $core.int? dlCount,
+    $core.String? dlSpeed,
+    $core.int? ulCount,
+    $core.String? ulSpeed,
   }) {
     final result = create();
-    if (taskCount != null) result.taskCount = taskCount;
     if (dlCount != null) result.dlCount = dlCount;
     if (dlSpeed != null) result.dlSpeed = dlSpeed;
     if (ulCount != null) result.ulCount = ulCount;
@@ -652,97 +644,179 @@ class StatInfoResponse extends $pb.GeneratedMessage {
     return result;
   }
 
-  StatInfoResponse._();
+  HomepageResponse._();
 
-  factory StatInfoResponse.fromBuffer($core.List<$core.int> data,
+  factory HomepageResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory StatInfoResponse.fromJson($core.String json,
+  factory HomepageResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'StatInfoResponse',
+      _omitMessageNames ? '' : 'HomepageResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'task'),
       createEmptyInstance: create)
-    ..a<$fixnum.Int64>(
-        1, _omitFieldNames ? '' : 'taskCount', $pb.PbFieldType.OU6,
-        defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'dlCount', $pb.PbFieldType.OU6,
-        defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'dlSpeed', $pb.PbFieldType.OU6,
-        defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'ulCount', $pb.PbFieldType.OU6,
-        defaultOrMaker: $fixnum.Int64.ZERO)
-    ..a<$fixnum.Int64>(5, _omitFieldNames ? '' : 'ulSpeed', $pb.PbFieldType.OU6,
-        defaultOrMaker: $fixnum.Int64.ZERO)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'dlCount', $pb.PbFieldType.O3)
+    ..aOS(2, _omitFieldNames ? '' : 'dlSpeed')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'ulCount', $pb.PbFieldType.O3)
+    ..aOS(4, _omitFieldNames ? '' : 'ulSpeed')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  StatInfoResponse clone() => StatInfoResponse()..mergeFromMessage(this);
+  HomepageResponse clone() => HomepageResponse()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  StatInfoResponse copyWith(void Function(StatInfoResponse) updates) =>
-      super.copyWith((message) => updates(message as StatInfoResponse))
-          as StatInfoResponse;
+  HomepageResponse copyWith(void Function(HomepageResponse) updates) =>
+      super.copyWith((message) => updates(message as HomepageResponse))
+          as HomepageResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static StatInfoResponse create() => StatInfoResponse._();
+  static HomepageResponse create() => HomepageResponse._();
   @$core.override
-  StatInfoResponse createEmptyInstance() => create();
-  static $pb.PbList<StatInfoResponse> createRepeated() =>
-      [] as $pb.PbList<StatInfoResponse>;
+  HomepageResponse createEmptyInstance() => create();
+  static $pb.PbList<HomepageResponse> createRepeated() =>
+      [] as $pb.PbList<HomepageResponse>;
   @$core.pragma('dart2js:noInline')
-  static StatInfoResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<StatInfoResponse>(create);
-  static StatInfoResponse? _defaultInstance;
+  static HomepageResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<HomepageResponse>(create);
+  static HomepageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get taskCount => $_getI64(0);
+  $core.int get dlCount => $_getIZ(0);
   @$pb.TagNumber(1)
-  set taskCount($fixnum.Int64 value) => $_setInt64(0, value);
+  set dlCount($core.int value) => $_setSignedInt32(0, value);
   @$pb.TagNumber(1)
-  $core.bool hasTaskCount() => $_has(0);
+  $core.bool hasDlCount() => $_has(0);
   @$pb.TagNumber(1)
-  void clearTaskCount() => $_clearField(1);
+  void clearDlCount() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  $fixnum.Int64 get dlCount => $_getI64(1);
+  $core.String get dlSpeed => $_getSZ(1);
   @$pb.TagNumber(2)
-  set dlCount($fixnum.Int64 value) => $_setInt64(1, value);
+  set dlSpeed($core.String value) => $_setString(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasDlCount() => $_has(1);
+  $core.bool hasDlSpeed() => $_has(1);
   @$pb.TagNumber(2)
-  void clearDlCount() => $_clearField(2);
+  void clearDlSpeed() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $fixnum.Int64 get dlSpeed => $_getI64(2);
+  $core.int get ulCount => $_getIZ(2);
   @$pb.TagNumber(3)
-  set dlSpeed($fixnum.Int64 value) => $_setInt64(2, value);
+  set ulCount($core.int value) => $_setSignedInt32(2, value);
   @$pb.TagNumber(3)
-  $core.bool hasDlSpeed() => $_has(2);
+  $core.bool hasUlCount() => $_has(2);
   @$pb.TagNumber(3)
-  void clearDlSpeed() => $_clearField(3);
+  void clearUlCount() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $fixnum.Int64 get ulCount => $_getI64(3);
+  $core.String get ulSpeed => $_getSZ(3);
   @$pb.TagNumber(4)
-  set ulCount($fixnum.Int64 value) => $_setInt64(3, value);
+  set ulSpeed($core.String value) => $_setString(3, value);
   @$pb.TagNumber(4)
-  $core.bool hasUlCount() => $_has(3);
+  $core.bool hasUlSpeed() => $_has(3);
   @$pb.TagNumber(4)
-  void clearUlCount() => $_clearField(4);
+  void clearUlSpeed() => $_clearField(4);
+}
 
-  @$pb.TagNumber(5)
-  $fixnum.Int64 get ulSpeed => $_getI64(4);
-  @$pb.TagNumber(5)
-  set ulSpeed($fixnum.Int64 value) => $_setInt64(4, value);
-  @$pb.TagNumber(5)
-  $core.bool hasUlSpeed() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearUlSpeed() => $_clearField(5);
+class TaskDownloadCompletedFallbackRequest extends $pb.GeneratedMessage {
+  factory TaskDownloadCompletedFallbackRequest({
+    $core.String? category,
+    $core.String? name,
+    $core.String? hash,
+    $core.String? savePath,
+  }) {
+    final result = create();
+    if (category != null) result.category = category;
+    if (name != null) result.name = name;
+    if (hash != null) result.hash = hash;
+    if (savePath != null) result.savePath = savePath;
+    return result;
+  }
+
+  TaskDownloadCompletedFallbackRequest._();
+
+  factory TaskDownloadCompletedFallbackRequest.fromBuffer(
+          $core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory TaskDownloadCompletedFallbackRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'TaskDownloadCompletedFallbackRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'task'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'category')
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..aOS(3, _omitFieldNames ? '' : 'hash')
+    ..aOS(4, _omitFieldNames ? '' : 'savePath')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  TaskDownloadCompletedFallbackRequest clone() =>
+      TaskDownloadCompletedFallbackRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  TaskDownloadCompletedFallbackRequest copyWith(
+          void Function(TaskDownloadCompletedFallbackRequest) updates) =>
+      super.copyWith((message) =>
+              updates(message as TaskDownloadCompletedFallbackRequest))
+          as TaskDownloadCompletedFallbackRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TaskDownloadCompletedFallbackRequest create() =>
+      TaskDownloadCompletedFallbackRequest._();
+  @$core.override
+  TaskDownloadCompletedFallbackRequest createEmptyInstance() => create();
+  static $pb.PbList<TaskDownloadCompletedFallbackRequest> createRepeated() =>
+      [] as $pb.PbList<TaskDownloadCompletedFallbackRequest>;
+  @$core.pragma('dart2js:noInline')
+  static TaskDownloadCompletedFallbackRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<
+          TaskDownloadCompletedFallbackRequest>(create);
+  static TaskDownloadCompletedFallbackRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get category => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set category($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasCategory() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCategory() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get hash => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set hash($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasHash() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHash() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get savePath => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set savePath($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasSavePath() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSavePath() => $_clearField(4);
 }
 
 const $core.bool _omitFieldNames =

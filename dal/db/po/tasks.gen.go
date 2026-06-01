@@ -11,8 +11,8 @@ type Task struct {
 	ID               *string `gorm:"column:id;type:varchar(50)" json:"id"`
 	Xlid             *string `gorm:"column:xlid;type:varchar(50)" json:"xlid"`
 	Qbid             *string `gorm:"column:qbid;type:varchar(50)" json:"qbid"`
-	UnavailableLinks *string `gorm:"column:unavailable_links;type:TEXT;default:'[]'" json:"unavailable_links"`
-	AvailableLinks   *string `gorm:"column:available_links;type:TEXT;default:'[]'" json:"available_links"`
+	UnavailableLinks *string `gorm:"column:unavailable_links;type:TEXT;default:[]" json:"unavailable_links"`
+	AvailableLinks   *string `gorm:"column:available_links;type:TEXT;default:[]" json:"available_links"`
 }
 
 // TableName Task's table name

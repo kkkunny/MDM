@@ -86,7 +86,8 @@ message HomepageResponse {
 }
 
 message TaskDownloadCompletedFallbackRequest {
-  string name = 1;
-  string hash = 2;
-  string save_path = 3;
+  string category = 1;
+  string name = 2;
+  string hash = 3;
+  string save_path = 4;
 }

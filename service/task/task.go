@@ -235,6 +235,7 @@ func Completed(ctx context.Context, tasks ...*dto.XLTask) error {
 		// 回调
 		if config.TaskDownloadCompletedFallbackAddr != "" {
 			fallbackReq := &vo.TaskDownloadCompletedFallbackRequest{
+				Category: task.Category(),
 				Name:     task.Name(),
 				Hash:     task.Hash(),
 				SavePath: toPath,

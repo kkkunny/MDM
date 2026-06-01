@@ -177,7 +177,7 @@ final $typed_data.Uint8List listTasksResponseDescriptor = $convert.base64Decode(
 const CreateTaskRequest$json = {
   '1': 'CreateTaskRequest',
   '2': [
-    {'1': 'link', '3': 1, '4': 1, '5': 9, '10': 'link'},
+    {'1': 'links', '3': 1, '4': 3, '5': 9, '10': 'links'},
     {'1': 'name', '3': 10, '4': 1, '5': 9, '10': 'name'},
     {
       '1': 'category',
@@ -196,8 +196,8 @@ const CreateTaskRequest$json = {
 
 /// Descriptor for `CreateTaskRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createTaskRequestDescriptor = $convert.base64Decode(
-    'ChFDcmVhdGVUYXNrUmVxdWVzdBISCgRsaW5rGAEgASgJUgRsaW5rEhIKBG5hbWUYCiABKAlSBG'
-    '5hbWUSHwoIY2F0ZWdvcnkYCyABKAlIAFIIY2F0ZWdvcnmIAQFCCwoJX2NhdGVnb3J5');
+    'ChFDcmVhdGVUYXNrUmVxdWVzdBIUCgVsaW5rcxgBIAMoCVIFbGlua3MSEgoEbmFtZRgKIAEoCV'
+    'IEbmFtZRIfCghjYXRlZ29yeRgLIAEoCUgAUghjYXRlZ29yeYgBAUILCglfY2F0ZWdvcnk=');
 
 @$core.Deprecated('Use createTaskResponseDescriptor instead')
 const CreateTaskResponse$json = {
@@ -232,20 +232,37 @@ final $typed_data.Uint8List operateTasksRequestDescriptor = $convert.base64Decod
     'ChNPcGVyYXRlVGFza3NSZXF1ZXN0EhAKA2lkcxgBIAMoCVIDaWRzEicKB29wZXJhdGUYAiABKA'
     '4yDS50YXNrLk9wZXJhdGVSB29wZXJhdGU=');
 
-@$core.Deprecated('Use statInfoResponseDescriptor instead')
-const StatInfoResponse$json = {
-  '1': 'StatInfoResponse',
+@$core.Deprecated('Use homepageResponseDescriptor instead')
+const HomepageResponse$json = {
+  '1': 'HomepageResponse',
   '2': [
-    {'1': 'task_count', '3': 1, '4': 1, '5': 4, '10': 'taskCount'},
-    {'1': 'dl_count', '3': 2, '4': 1, '5': 4, '10': 'dlCount'},
-    {'1': 'dl_speed', '3': 3, '4': 1, '5': 4, '10': 'dlSpeed'},
-    {'1': 'ul_count', '3': 4, '4': 1, '5': 4, '10': 'ulCount'},
-    {'1': 'ul_speed', '3': 5, '4': 1, '5': 4, '10': 'ulSpeed'},
+    {'1': 'dl_count', '3': 1, '4': 1, '5': 5, '10': 'dlCount'},
+    {'1': 'dl_speed', '3': 2, '4': 1, '5': 9, '10': 'dlSpeed'},
+    {'1': 'ul_count', '3': 3, '4': 1, '5': 5, '10': 'ulCount'},
+    {'1': 'ul_speed', '3': 4, '4': 1, '5': 9, '10': 'ulSpeed'},
   ],
 };
 
-/// Descriptor for `StatInfoResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List statInfoResponseDescriptor = $convert.base64Decode(
-    'ChBTdGF0SW5mb1Jlc3BvbnNlEh0KCnRhc2tfY291bnQYASABKARSCXRhc2tDb3VudBIZCghkbF'
-    '9jb3VudBgCIAEoBFIHZGxDb3VudBIZCghkbF9zcGVlZBgDIAEoBFIHZGxTcGVlZBIZCgh1bF9j'
-    'b3VudBgEIAEoBFIHdWxDb3VudBIZCgh1bF9zcGVlZBgFIAEoBFIHdWxTcGVlZA==');
+/// Descriptor for `HomepageResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List homepageResponseDescriptor = $convert.base64Decode(
+    'ChBIb21lcGFnZVJlc3BvbnNlEhkKCGRsX2NvdW50GAEgASgFUgdkbENvdW50EhkKCGRsX3NwZW'
+    'VkGAIgASgJUgdkbFNwZWVkEhkKCHVsX2NvdW50GAMgASgFUgd1bENvdW50EhkKCHVsX3NwZWVk'
+    'GAQgASgJUgd1bFNwZWVk');
+
+@$core.Deprecated('Use taskDownloadCompletedFallbackRequestDescriptor instead')
+const TaskDownloadCompletedFallbackRequest$json = {
+  '1': 'TaskDownloadCompletedFallbackRequest',
+  '2': [
+    {'1': 'category', '3': 1, '4': 1, '5': 9, '10': 'category'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    {'1': 'hash', '3': 3, '4': 1, '5': 9, '10': 'hash'},
+    {'1': 'save_path', '3': 4, '4': 1, '5': 9, '10': 'savePath'},
+  ],
+};
+
+/// Descriptor for `TaskDownloadCompletedFallbackRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List taskDownloadCompletedFallbackRequestDescriptor =
+    $convert.base64Decode(
+        'CiRUYXNrRG93bmxvYWRDb21wbGV0ZWRGYWxsYmFja1JlcXVlc3QSGgoIY2F0ZWdvcnkYASABKA'
+        'lSCGNhdGVnb3J5EhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEaGFzaBgDIAEoCVIEaGFzaBIbCglz'
+        'YXZlX3BhdGgYBCABKAlSCHNhdmVQYXRo');

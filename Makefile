@@ -4,17 +4,25 @@ WEB_ROOT_PATH = $(realpath ./web)
 install_deps:
 	go install github.com/favadi/protoc-go-inject-tag@latest
 
-gen_idl: model/idl
+gen_idl_for_go: $(SVR_ROOT_PATH)/model/idl
 	@echo "Updating idl ..."
-	@-rm -rf model/vo
-	@protoc -I=model/idl/vo --go_out=model model/idl/vo/task.proto
-	@protoc-go-inject-tag -input=model/vo/*.go
-	@-rm -rf dal/db/po
-	@-mdkir -p dal/db/po
-	@-rm -rf dal/db/query
-	@-mdkir -p dal/db/query
-	@go run cmd/main.go
+	@-rm -rf $(SVR_ROOT_PATH)/model/vo
+	@protoc -I=$(SVR_ROOT_PATH)/model/idl/vo --go_out=model $(SVR_ROOT_PATH)/model/idl/vo/task.proto
+	@protoc-go-inject-tag -input=$(SVR_ROOT_PATH)/model/vo/*.go
+	@-rm -rf $(SVR_ROOT_PATH)/dal/db/po
+	@-mdkir -p $(SVR_ROOT_PATH)/dal/db/po
+	@-rm -rf $(SVR_ROOT_PATH)/dal/db/query
+	@-mdkir -p $(SVR_ROOT_PATH)/dal/db/query
+	@go run $(SVR_ROOT_PATH)/cmd/main.go
 	@echo "Done."
+
+gen_idl_for_dart: $(SVR_ROOT_PATH)/model/idl
+	-rm -rf $(WEB_ROOT_PATH)/lib/models/vo
+	mkdir -p $(WEB_ROOT_PATH)/lib/models/vo
+	protoc -I=$(SVR_ROOT_PATH)/model/idl/vo --dart_out=$(WEB_ROOT_PATH)/lib/models/vo $(SVR_ROOT_PATH)/model/idl/vo/task.proto
+	find $(WEB_ROOT_PATH)/lib/models/vo -type f -name "*.dart" -print0 | xargs -0 perl -pi -e 's/\$$pb\.PbList<([^>]+)>\(\)/[] as \$$pb.PbList<\1>/g'
+
+gen_idl: gen_idl_for_go gen_idl_for_dart
 
 gen_web: $(WEB_ROOT_PATH)
 	@echo "Updating web ..."
