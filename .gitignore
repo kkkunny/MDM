@@ -35,3 +35,4 @@ go.work.sum
 # Flutter
 web/build/
 static/
+web/.dart_tool
