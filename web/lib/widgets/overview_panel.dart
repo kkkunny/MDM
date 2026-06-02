@@ -59,13 +59,13 @@ class OverviewPanel extends StatelessWidget {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: stats.downloading > 0 ? kSuccess : Colors.white54,
+                            color: provider.isConnected ? kSuccess : Colors.white54,
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          stats.downloading > 0 ? '已连接' : '已断联',
+                          provider.isConnected ? '已连接' : '已断联',
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ],

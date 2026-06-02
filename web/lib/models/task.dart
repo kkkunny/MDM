@@ -39,16 +39,19 @@ class DownloadStats {
     required this.totalSize,
   });
 
-  factory DownloadStats.fromTasks(List<Task> tasks) => DownloadStats(
-    totalTasks: tasks.length,
-    downloading: tasks.where((t) => t.phase == TaskPhase.TpDownRunning).length,
-    completed: tasks.where((t) => t.phase == TaskPhase.TpDownCompleted).length,
-    paused: tasks.where((t) => t.phase == TaskPhase.TpDownQueued).length,
-    failed: tasks.where((t) => t.phase == TaskPhase.TpDownFailed).length,
-    totalSpeed: tasks
-        .where((t) => t.phase == TaskPhase.TpDownRunning)
-        .fold(0, (sum, t) => sum + t.downloadStats.speed.toInt()),
-    totalDownloaded: tasks.fold(0, (sum, t) => sum + t.downloadStats.size.toInt()),
-    totalSize: tasks.fold(0, (sum, t) => sum + t.size.toInt()),
-  );
+  factory DownloadStats.fromTasks(List<Task> tasks) {
+    final active = [TaskPhase.TpDownRunning, TaskPhase.TpDownQueued];
+    return DownloadStats(
+      totalTasks: tasks.length,
+      downloading: tasks.where((t) => active.contains(t.phase)).length,
+      completed: tasks.where((t) => t.phase == TaskPhase.TpDownCompleted).length,
+      paused: tasks.where((t) => t.phase == TaskPhase.TpDownPaused).length,
+      failed: tasks.where((t) => t.phase == TaskPhase.TpDownFailed).length,
+      totalSpeed: tasks
+          .where((t) => active.contains(t.phase))
+          .fold(0, (sum, t) => sum + t.downloadStats.speed.toInt()),
+      totalDownloaded: tasks.fold(0, (sum, t) => sum + t.downloadStats.size.toInt()),
+      totalSize: tasks.fold(0, (sum, t) => sum + t.size.toInt()),
+    );
+  }
 }

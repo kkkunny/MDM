@@ -46,6 +46,7 @@ class TaskProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   Set<String> get selectedTaskIds => _selectedTaskIds;
   bool get hasSelection => _selectedTaskIds.isNotEmpty;
+  bool get isConnected => !_isLoading && _error == null;
 
   DownloadStats get stats => DownloadStats.fromTasks(_tasks);
 
@@ -87,12 +88,14 @@ class TaskProvider extends ChangeNotifier {
     _pollSubscription?.cancel();
     _pollSubscription = Stream.periodic(_refreshInterval, (_) => listTasks()).listen(
       (futureResp) async {
-        _tasks = (await futureResp).tasks;
-        notifyListeners();
-      },
-      onError: (e) {
-        _error = e.toString();
-        notifyListeners();
+        try {
+          _tasks = (await futureResp).tasks;
+          _error = null;
+          notifyListeners();
+        } catch (e) {
+          _error = e.toString();
+          notifyListeners();
+        }
       },
     );
   }
