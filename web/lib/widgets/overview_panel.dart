@@ -176,6 +176,7 @@ class OverviewPanel extends StatelessWidget {
     final isSelected = provider.currentFilter == filter;
     final color = _filterColor(filter);
     final icon = Icon(_filterIcons[filter], color: color, size: 20);
+    final count = provider.getTaskCount(filter);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -206,7 +207,24 @@ class OverviewPanel extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (isSelected) Icon(Icons.chevron_right_rounded, color: color, size: 20),
+                if (count > 0)
+                  Container(
+                    width: 22,
+                    height: 22,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$count',
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                if (isSelected) ...[
+                  if (count > 0) const SizedBox(width: 4),
+                  Icon(Icons.chevron_right_rounded, color: color, size: 20),
+                ],
               ],
             ),
           ),

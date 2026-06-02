@@ -49,6 +49,10 @@ class TaskProvider extends ChangeNotifier {
 
   DownloadStats get stats => DownloadStats.fromTasks(_tasks);
 
+  int getTaskCount(FilterType filter) {
+    return _tasks.where((t) => filter.phases.contains(t.phase)).length;
+  }
+
   List<Task> get _filteredTasks {
     var filtered = _tasks.where((t) => _currentFilter.phases.contains(t.phase)).toList();
     if (_searchQuery.isNotEmpty) {

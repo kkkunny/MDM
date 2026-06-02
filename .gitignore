@@ -36,3 +36,4 @@ go.work.sum
 web/build/
 static/
 web/.dart_tool
+web/.codegraph/
