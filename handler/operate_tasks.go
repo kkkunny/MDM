@@ -29,13 +29,13 @@ func OperateTasks(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, err)
 	}
 
-	if stlslices.Contain([]vo.Operate{
+	if !stlslices.Contain([]vo.Operate{
 		vo.Operate_OpDelete,
 		vo.Operate_OpResume,
 		vo.Operate_OpPause,
 		vo.Operate_OpRetry,
 	}, req.GetOperate()) || len(req.Ids) == 0 {
-		return util.NewHttpError(http.StatusBadRequest, err)
+		return util.NewHttpError(http.StatusBadRequest, stlerr.Errorf("params invalid"))
 	}
 
 	ids := req.GetIds()
