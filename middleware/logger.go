@@ -11,7 +11,7 @@ import (
 
 func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		config.Logger.Infof("http request ==> [%s] %s", c.Request().Method, c.Path())
+		config.Logger.Infof("http request ==> [%s] %s", c.Request().Method, c.Request().URL.Path)
 
 		err := next(c)
 		var he *util.HttpError

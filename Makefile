@@ -10,9 +10,9 @@ gen_idl_for_go: $(SVR_ROOT_PATH)/model/idl
 	@protoc -I=$(SVR_ROOT_PATH)/model/idl/vo --go_out=model $(SVR_ROOT_PATH)/model/idl/vo/task.proto
 	@protoc-go-inject-tag -input=$(SVR_ROOT_PATH)/model/vo/*.go
 	@-rm -rf $(SVR_ROOT_PATH)/dal/db/po
-	@-mdkir -p $(SVR_ROOT_PATH)/dal/db/po
+	@-mkdir -p $(SVR_ROOT_PATH)/dal/db/po
 	@-rm -rf $(SVR_ROOT_PATH)/dal/db/query
-	@-mdkir -p $(SVR_ROOT_PATH)/dal/db/query
+	@-mkdir -p $(SVR_ROOT_PATH)/dal/db/query
 	@go run $(SVR_ROOT_PATH)/cmd/main.go
 	@echo "Done."
 

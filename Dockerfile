@@ -10,7 +10,7 @@ RUN CGO_ENABLED=1 go build --tags release -o output/mdm .
 FROM alpine:3.22 AS final
 RUN apk --no-cache add tzdata ca-certificates libc6-compat libgcc libstdc++ && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    echo "Asia/Shanghai" > /etc/timezone \
+    echo "Asia/Shanghai" > /etc/timezone
 ENV TZ Asia/Shanghai
 
 WORKDIR /app

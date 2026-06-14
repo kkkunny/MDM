@@ -32,8 +32,11 @@ go.work.sum
 .idea/
 .vscode/
 
+# AI
+.codegraph/
+web/.codegraph/
+
 # Flutter
 web/build/
 static/
 web/.dart_tool
-web/.codegraph/

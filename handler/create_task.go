@@ -29,7 +29,7 @@ func CreateTask(c *echo.Context) error {
 	}
 
 	if len(req.GetLinks()) == 0 {
-		return util.NewHttpError(http.StatusBadRequest, err)
+		return util.NewHttpError(http.StatusBadRequest, stlerr.Errorf("need a link"))
 	}
 
 	id := uuid.NewString()

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator"
-	stlerr "github.com/kkkunny/stl/error"
 	"github.com/labstack/echo/v5"
 )
 
@@ -18,7 +17,7 @@ func NewValidator() echo.Validator {
 
 func (cv *customValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
-		return stlerr.ErrorWrap(echo.NewHTTPError(http.StatusBadRequest, err.Error()))
+		return NewHttpError(http.StatusBadRequest, err)
 	}
 	return nil
 }
