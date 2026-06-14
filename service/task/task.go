@@ -109,7 +109,9 @@ func AutoManageTasks(ctx context.Context) error {
 		return true
 	}), func(_ int, t dto.Task) *dto.XLTask { return t.(*dto.XLTask) })
 	if len(completedTasks) > 0 {
-		return Completed(ctx, completedTasks...)
+		if err := Completed(ctx, completedTasks...); err != nil {
+			_ = config.Logger.Error(err)
+		}
 	}
 
 	// 下载阻塞的任务
@@ -132,7 +134,9 @@ func AutoManageTasks(ctx context.Context) error {
 		return false
 	}), func(_ int, t dto.Task) *dto.XLTask { return t.(*dto.XLTask) })
 	if len(cloggedTasks) > 0 {
-		return Clogged(ctx, cloggedTasks...)
+		if err := Clogged(ctx, cloggedTasks...); err != nil {
+			_ = config.Logger.Error(err)
+		}
 	}
 
 	return nil

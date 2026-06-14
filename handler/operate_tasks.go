@@ -54,10 +54,10 @@ func OperateTasks(c *echo.Context) error {
 			continue
 		}
 		if stlval.DerefPtrOr(t.Xlid, "") != "" {
-			ids[i] = *t.Xlid
+			ids[i] = dto.XLTaskIDPrefix + *t.Xlid
 		}
 		if stlval.DerefPtrOr(t.Qbid, "") != "" {
-			ids[i] = *t.Qbid
+			ids[i] = dto.QBTaskIDPrefix + *t.Qbid
 		}
 	}
 	err = operateTasksByRelIDs(ctx, req.GetOperate(), ids...)
