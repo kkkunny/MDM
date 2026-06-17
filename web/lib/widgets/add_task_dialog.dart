@@ -2,24 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:mdm/configs/theme.dart';
 
 class AddTaskData {
-  final String link;
+  final List<String> links;
   final String taskName;
   final String category;
 
-  AddTaskData(this.link, {this.taskName = '', this.category = ''});
+  AddTaskData(this.links, {this.taskName = '', this.category = ''});
 }
 
-class AddTaskDialog extends StatelessWidget {
+class AddTaskDialog extends StatefulWidget {
   final void Function(AddTaskData data)? action;
 
   const AddTaskDialog({super.key, this.action});
 
   @override
-  Widget build(BuildContext context) {
-    final linkCtl = TextEditingController();
-    final categoryCtl = TextEditingController();
-    final taskNameCtl = TextEditingController();
+  State<AddTaskDialog> createState() => _AddTaskDialogState();
+}
 
+class _AddTaskDialogState extends State<AddTaskDialog> {
+  final _linkCtrls = <TextEditingController>[TextEditingController()];
+  final _categoryCtl = TextEditingController();
+  final _taskNameCtl = TextEditingController();
+
+  @override
+  void dispose() {
+    for (final c in _linkCtrls) {
+      c.dispose();
+    }
+    _categoryCtl.dispose();
+    _taskNameCtl.dispose();
+    super.dispose();
+  }
+
+  void _addLinkField() {
+    setState(() {
+      _linkCtrls.add(TextEditingController());
+    });
+  }
+
+  void _removeLinkField(int index) {
+    setState(() {
+      _linkCtrls[index].dispose();
+      _linkCtrls.removeAt(index);
+    });
+  }
+
+  List<String> _getValidLinks() {
+    return _linkCtrls.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: kLightSurface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -29,26 +61,57 @@ class AddTaskDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: linkCtl,
-              style: const TextStyle(color: kLightText),
-              decoration: InputDecoration(
-                labelText: '下载链接',
-                labelStyle: TextStyle(color: kLightTextSecondary),
-                hintText: 'https://example.com/file.zip',
-                hintStyle: TextStyle(color: kLightTextSecondary.withValues(alpha: 0.6)),
-                filled: true,
-                fillColor: kLightSurfaceLight,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            ...List.generate(_linkCtrls.length, (i) {
+              final ctl = _linkCtrls[i];
+              return Padding(
+                padding: EdgeInsets.only(bottom: i < _linkCtrls.length - 1 ? 8 : 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: ctl,
+                        style: const TextStyle(color: kLightText),
+                        decoration: InputDecoration(
+                          labelText: i == 0 ? '下载链接' : '备选链接 ${i + 1}',
+                          labelStyle: TextStyle(color: kLightTextSecondary),
+                          hintText: 'https://example.com/file.zip',
+                          hintStyle: TextStyle(color: kLightTextSecondary.withValues(alpha: 0.6)),
+                          filled: true,
+                          fillColor: kLightSurfaceLight,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          prefixIcon: Icon(Icons.link_rounded, color: kLightTextSecondary),
+                        ),
+                      ),
+                    ),
+                    if (_linkCtrls.length > 1)
+                      SizedBox(
+                        width: 32,
+                        child: IconButton(
+                          icon: Icon(Icons.close_rounded, color: kLightTextSecondary, size: 18),
+                          onPressed: () => _removeLinkField(i),
+                          padding: EdgeInsets.zero,
+                        ),
+                      ),
+                  ],
                 ),
-                prefixIcon: Icon(Icons.link_rounded, color: kLightTextSecondary),
+              );
+            }),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _addLinkField,
+                icon: Icon(Icons.add_rounded, color: kPrimary, size: 18),
+                label: Text('添加备选链接', style: TextStyle(color: kPrimary, fontSize: 13)),
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: categoryCtl,
+              controller: _categoryCtl,
               style: const TextStyle(color: kLightText),
               decoration: InputDecoration(
                 labelText: '类别（可选）',
@@ -64,7 +127,7 @@ class AddTaskDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: taskNameCtl,
+              controller: _taskNameCtl,
               style: const TextStyle(color: kLightText),
               decoration: InputDecoration(
                 labelText: '任务名（可选）',
@@ -88,8 +151,9 @@ class AddTaskDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            if (linkCtl.text.isEmpty) return;
-            action?.call(AddTaskData(linkCtl.text, taskName: taskNameCtl.text, category: categoryCtl.text));
+            final links = _getValidLinks();
+            if (links.isEmpty) return;
+            widget.action?.call(AddTaskData(links, taskName: _taskNameCtl.text, category: _categoryCtl.text));
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(

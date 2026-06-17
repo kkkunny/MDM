@@ -84,7 +84,7 @@ class TaskListPanel extends StatelessWidget {
         context: context,
         builder: (context) => AddTaskDialog(
           action: (AddTaskData data) async {
-            await createTask(CreateTaskRequest(links: [data.link], name: data.taskName, category: data.category));
+            await createTask(CreateTaskRequest(links: data.links, name: data.taskName, category: data.category));
           },
         ),
       ),
