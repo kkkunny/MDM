@@ -4,8 +4,9 @@ import 'package:mdm/configs/theme.dart';
 class AddTaskData {
   final String link;
   final String taskName;
+  final String category;
 
-  AddTaskData(this.link, {this.taskName = ''});
+  AddTaskData(this.link, {this.taskName = '', this.category = ''});
 }
 
 class AddTaskDialog extends StatelessWidget {
@@ -15,8 +16,9 @@ class AddTaskDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final taskNameCtl = TextEditingController();
     final linkCtl = TextEditingController();
+    final categoryCtl = TextEditingController();
+    final taskNameCtl = TextEditingController();
 
     return AlertDialog(
       backgroundColor: kLightSurface,
@@ -46,6 +48,22 @@ class AddTaskDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
+              controller: categoryCtl,
+              style: const TextStyle(color: kLightText),
+              decoration: InputDecoration(
+                labelText: '类别（可选）',
+                labelStyle: TextStyle(color: kLightTextSecondary),
+                filled: true,
+                fillColor: kLightSurfaceLight,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: Icon(Icons.category_rounded, color: kLightTextSecondary),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
               controller: taskNameCtl,
               style: const TextStyle(color: kLightText),
               decoration: InputDecoration(
@@ -71,7 +89,7 @@ class AddTaskDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () {
             if (linkCtl.text.isEmpty) return;
-            action?.call(AddTaskData(linkCtl.text, taskName: taskNameCtl.text));
+            action?.call(AddTaskData(linkCtl.text, taskName: taskNameCtl.text, category: categoryCtl.text));
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
