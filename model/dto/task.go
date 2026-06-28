@@ -183,7 +183,12 @@ func (t QBTask) Phase() vo.TaskPhase {
 		return vo.TaskPhase_TpUpQueued
 	case qbittorrent.TorrentStateUploading, qbittorrent.TorrentStateStalledUp, qbittorrent.TorrentStateForcedUp:
 		return vo.TaskPhase_TpUpRunning
-	case qbittorrent.TorrentStatePausedUp, qbittorrent.TorrentStateStoppedUp:
+	case qbittorrent.TorrentStatePausedUp:
+		return vo.TaskPhase_TpUpPaused
+	case qbittorrent.TorrentStateStoppedUp:
+		if t.NumComplete > 0 {
+			return vo.TaskPhase_TpUpCompleted
+		}
 		return vo.TaskPhase_TpUpPaused
 	case qbittorrent.TorrentStateMissingFiles:
 		return vo.TaskPhase_TpUpFailed
