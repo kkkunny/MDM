@@ -25,15 +25,11 @@ func Homepage(c *echo.Context) error {
 	for _, t := range tasks {
 		switch t.Phase() {
 		case vo.TaskPhase_TpDownQueued,
-			vo.TaskPhase_TpDownRunning,
-			vo.TaskPhase_TpDownPaused,
-			vo.TaskPhase_TpDownFailed:
+			vo.TaskPhase_TpDownRunning:
 			resp.DlCount++
 			dlSpeed += t.Speed()
 		case vo.TaskPhase_TpUpQueued,
-			vo.TaskPhase_TpUpRunning,
-			vo.TaskPhase_TpUpPaused,
-			vo.TaskPhase_TpUpFailed:
+			vo.TaskPhase_TpUpRunning:
 			resp.UlCount++
 			ulSpeed += t.Speed()
 		}
