@@ -242,17 +242,30 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
     );
   }
 
+  // 是下载还是在上传
+  bool _getDownloadOrUpload(){
+    switch(widget.task.phase){
+      case TaskPhase.TpDownQueued:
+      case TaskPhase.TpDownRunning:
+      case TaskPhase.TpDownPaused:
+      case TaskPhase.TpDownFailed:
+      case TaskPhase.TpDownCompleted:
+        return true;
+    }
+    return false;
+  }
+
   Widget _buildProgressSection(Color statusColor) {
-    final downloaded = widget.task.downloadStats.size;
+    final done = _getDownloadOrUpload() ? widget.task.downloadStats.size : widget.task.uploadStats.size;
     final total = widget.task.size;
-    final progressValue = total > 0 ? downloaded.toDouble() / total.toDouble() : 0.0;
+    final progress = total > 0 ? done.toDouble() / total.toDouble() : 0.0;
 
     return Column(
       children: [
         LinearProgressIndicator(
           minHeight: 8,
           borderRadius: BorderRadius.circular(6),
-          value: progressValue,
+          value: progress,
           backgroundColor: kLightDivider,
           valueColor: AlwaysStoppedAnimation(
             widget.task.phase == TaskPhase.TpDownRunning ? kInfo : statusColor,
@@ -263,11 +276,11 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              FormatHelper.formatProgress(downloaded.toDouble(), total.toDouble()),
+              FormatHelper.formatProgress(done.toDouble(), total.toDouble()),
               style: TextStyle(color: statusColor, fontSize: 14, fontWeight: FontWeight.w600),
             ),
             Text(
-              '${FormatHelper.formatSize(downloaded.toInt())} / ${FormatHelper.formatSize(total.toInt())}',
+              '${FormatHelper.formatSize(done.toInt())} / ${FormatHelper.formatSize(total.toInt())}',
               style: const TextStyle(color: kLightTextSecondary, fontSize: 13),
             ),
           ],
@@ -295,6 +308,14 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                   ? Duration.zero
                   : Duration(seconds: ((widget.task.size.toDouble() - widget.task.downloadStats.size.toDouble()) / widget.task.downloadStats.speed.toDouble()).toInt()),
             ),
+            style: const TextStyle(color: kLightTextSecondary, fontSize: 13),
+          ),
+        ],
+        if (widget.task.phase == TaskPhase.TpUpRunning) ...[
+          Icon(Icons.speed_rounded, color: kLightTextSecondary, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            '${FormatHelper.formatSpeed(widget.task.uploadStats.speed.toDouble())}/s',
             style: const TextStyle(color: kLightTextSecondary, fontSize: 13),
           ),
         ],
