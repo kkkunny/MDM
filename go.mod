@@ -8,8 +8,8 @@ require (
 	github.com/duke-git/lancet/v2 v2.3.9
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/google/uuid v1.6.0
-	github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3
-	github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24
+	github.com/kkkunny/stl v0.0.0-20260823100839-2f8ca868c8e3
+	github.com/kkkunny/xunlei v0.0.0-20260809044548-83429566a64b
 	github.com/labstack/echo/v5 v5.0.4
 	golang.org/x/sync v0.20.0
 	google.golang.org/protobuf v1.36.10
@@ -45,7 +45,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-sqlite3 v1.14.34 // indirect
+	github.com/mattn/go-sqlite3 v1.14.50 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect

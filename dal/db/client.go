@@ -19,7 +19,7 @@ import (
 var (
 	ClientGetter = lazy.Getter(func() (*gorm.DB, error) {
 		db, err := stlerr.ErrorWith(gorm.Open(
-			sqlite.Open(stlval.Ternary(config.Release, "/config/mdm.db", "mdm.db")),
+			sqlite.Open(stlval.If(config.Release, "/config/mdm.db", "mdm.db")),
 			&gorm.Config{
 				Logger: logger.New(new(customLogger), logger.Config{
 					SlowThreshold:             200 * time.Millisecond,

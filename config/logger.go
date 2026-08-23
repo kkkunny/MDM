@@ -27,7 +27,7 @@ func init() {
 	case "PANIC":
 		level = stllog.LevelPanic
 	default:
-		level = stlval.Ternary(Release, stllog.LevelInfo, stllog.LevelDebug)
+		level = stlval.If(Release, stllog.LevelInfo, stllog.LevelDebug)
 	}
 	Logger = stllog.New(os.Stdout, level)
 	Logger.SetDefaultConfig(Logger.WithDisplayLevel().WithDisplayTime().WithDisplayPosition().WithDisplayColor().WithDisplayGroup())

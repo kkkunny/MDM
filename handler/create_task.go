@@ -32,25 +32,26 @@ func CreateTask(c *echo.Context) error {
 		return util.NewHttpError(http.StatusBadRequest, stlerr.Errorf("need a link"))
 	}
 
-	id := uuid.NewString()
-
-	d, err := db.NewTasksDal(ctx)
-	if err != nil {
-		return err
-	}
-	if err = d.MSave(&po.Task{
-		ID:             &id,
-		AvailableLinks: stlval.Ptr(util.ToJson[string](req.GetLinks())),
-	}); err != nil {
-		return err
-	}
-
 	name := req.GetName()
 	if req.GetCategory() != "" {
 		name = fmt.Sprintf("[[%s]]|%s", req.GetCategory(), req.GetName())
 	}
 	xlTask, err := stlerr.ErrorWith(xl.Client.CreateTask(ctx, name, stlslices.First(req.GetLinks())))
 	if err != nil {
+		return err
+	}
+
+	id := uuid.NewString()
+	d, err := db.NewTasksDal(ctx)
+	if err != nil {
+		return err
+	}
+	if err = d.MSave(&po.Task{
+		ID:             &id,
+		Xlid:           &xlTask.ID,
+		AvailableLinks: stlval.Ptr(util.ToJson[string](req.GetLinks())),
+	}); err != nil {
+		_ = xl.Client.DeleteTask(ctx, xlTask.ID, true)
 		return err
 	}
 

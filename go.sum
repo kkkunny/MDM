@@ -179,10 +179,10 @@ github.com/jtolds/gls v4.2.1+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVY
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
-github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3 h1:G/Fd+6nUHKvXqqpyM1Tj5iOjKIzbZVngrI7WSfv3fhA=
-github.com/kkkunny/stl v0.0.0-20260308104014-a071a69c41b3/go.mod h1:vm8PcGY+mp6XVJHuPqf2u/sdDyuShvgE7r86a4GL+Co=
-github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24 h1:RQLFv6A9pP68laVtlH/qQDtUpLTRFqur5YdLHFhKD90=
-github.com/kkkunny/xunlei v0.0.0-20260201124026-f6076186ff24/go.mod h1:mvhav1tzvXWBf3KGiAIPnY79uAm4OyTaNoVOKDQ05h0=
+github.com/kkkunny/stl v0.0.0-20260823100839-2f8ca868c8e3 h1:6MIBXxDPBkzcksnzgLsQuZLVFg8KN5wARhvyilK1328=
+github.com/kkkunny/stl v0.0.0-20260823100839-2f8ca868c8e3/go.mod h1:vm8PcGY+mp6XVJHuPqf2u/sdDyuShvgE7r86a4GL+Co=
+github.com/kkkunny/xunlei v0.0.0-20260809044548-83429566a64b h1:I2W5dFrdhA2ZawwxqywN9ppiI2p9TaCB60eVpqfHgIU=
+github.com/kkkunny/xunlei v0.0.0-20260809044548-83429566a64b/go.mod h1:mvhav1tzvXWBf3KGiAIPnY79uAm4OyTaNoVOKDQ05h0=
 github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r5xaG0Es51mhhB9BQB2qeMA=
 github.com/klauspost/compress v1.17.9/go.mod h1:Di0epgTjJY877eYKx5yC51cX2A2Vl2ibi7bDH9ttBbw=
 github.com/klauspost/cpuid/v2 v2.0.4/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
@@ -205,8 +205,8 @@ github.com/leodido/go-urn v1.4.0/go.mod h1:bvxc+MVxLKB4z00jd1z+Dvzr47oO32F/QSNjS
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-sqlite3 v1.14.8/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
-github.com/mattn/go-sqlite3 v1.14.34 h1:3NtcvcUnFBPsuRcno8pUtupspG/GM+9nZ88zgJcp6Zk=
-github.com/mattn/go-sqlite3 v1.14.34/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/mattn/go-sqlite3 v1.14.50 h1:dmdFvo1XG4MPzA4IkAmE9upVz/Nj31uRoM5+jC8hYbY=
+github.com/mattn/go-sqlite3 v1.14.50/go.mod h1:6JTjA44L93a0QCyJef5YvlPoKXntQPjzWv5gtm9sB6w=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/microsoft/go-mssqldb v0.17.0 h1:Fto83dMZPnYv1Zwx5vHHxpNraeEaUlQ/hhHLgZiaenE=
 github.com/microsoft/go-mssqldb v0.17.0/go.mod h1:OkoNGhGEs8EZqchVTtochlXruEhEOaO4S0d2sB5aeGQ=

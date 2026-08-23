@@ -280,7 +280,7 @@ func Clogged(ctx context.Context, tasks ...*dto.XLTask) error {
 		return strings.Count(*v.AvailableLinks, ",") > 0
 	})
 	tasks = stlslices.Filter(tasks, func(_ int, t *dto.XLTask) bool {
-		return stlmaps.ContainKey(dbTasks, t.ID())
+		return !stlmaps.ContainKey(dbTasks, t.ID())
 	})
 
 	if len(tasks) == 0 {

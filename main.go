@@ -68,7 +68,7 @@ func main() {
 	route(svr.Group(""))
 	go cronjob()
 
-	if err := stlerr.ErrorWrap(svr.Start(fmt.Sprintf(":%d", stlval.Ternary(config.Release, 80, 8080)))); err != nil {
+	if err := stlerr.ErrorWrap(svr.Start(fmt.Sprintf(":%d", stlval.If(config.Release, 80, 8080)))); err != nil {
 		config.Logger.Panic(err)
 		panic(err)
 	}

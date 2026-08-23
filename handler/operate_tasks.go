@@ -108,7 +108,15 @@ func operateXLTask(ctx context.Context, op vo.Operate, ids ...string) (err error
 		var eg errgroup.Group
 		for _, id := range ids {
 			eg.Go(func() error {
-				return stlerr.ErrorWrap(xl.Client.DeleteTask(ctx, id, true))
+				err := stlerr.ErrorWrap(xl.Client.DeleteTask(ctx, id, true))
+				if err != nil {
+					return err
+				}
+				d, err := db.NewTasksDal(ctx)
+				if err != nil {
+					return err
+				}
+				return d.DelByIDs(dto.XLTaskIDPrefix + id)
 			})
 		}
 		err = eg.Wait()
