@@ -19,7 +19,7 @@ func main() {
 		FieldWithIndexTag: true,
 		FieldWithTypeTag:  true,
 	})
-	db := stlerr.MustWith(stlerr.ErrorWith(gorm.Open(sqlite.Open(stlval.Ternary(config.Release, "/config/mdm.db", "mdm.db")))))
+	db := stlerr.MustWith(stlerr.ErrorWith(gorm.Open(sqlite.Open(stlval.If(config.Release, "/config/mdm.db", "mdm.db")))))
 	g.UseDB(db)
 	models := g.GenerateAllTable()
 	g.ApplyBasic(models...)

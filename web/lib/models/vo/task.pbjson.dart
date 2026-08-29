@@ -39,6 +39,21 @@ final $typed_data.Uint8List taskPhaseDescriptor = $convert.base64Decode(
     'bXBsZXRlZBA3Eg4KClRwVXBRdWV1ZWQQZRIPCgtUcFVwUnVubmluZxBmEg4KClRwVXBQYXVzZW'
     'QQZxIOCgpUcFVwRmFpbGVkEGgSEQoNVHBVcENvbXBsZXRlZBBp');
 
+@$core.Deprecated('Use taskEventTypeDescriptor instead')
+const TaskEventType$json = {
+  '1': 'TaskEventType',
+  '2': [
+    {'1': 'TetUnknown', '2': 0},
+    {'1': 'TetFull', '2': 1},
+    {'1': 'TetUpsert', '2': 2},
+  ],
+};
+
+/// Descriptor for `TaskEventType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List taskEventTypeDescriptor = $convert.base64Decode(
+    'Cg1UYXNrRXZlbnRUeXBlEg4KClRldFVua25vd24QABILCgdUZXRGdWxsEAESDQoJVGV0VXBzZX'
+    'J0EAI=');
+
 @$core.Deprecated('Use operateDescriptor instead')
 const Operate$json = {
   '1': 'Operate',
@@ -172,6 +187,29 @@ const ListTasksResponse$json = {
 /// Descriptor for `ListTasksResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List listTasksResponseDescriptor = $convert.base64Decode(
     'ChFMaXN0VGFza3NSZXNwb25zZRIgCgV0YXNrcxgBIAMoCzIKLnRhc2suVGFza1IFdGFza3M=');
+
+@$core.Deprecated('Use taskEventDescriptor instead')
+const TaskEvent$json = {
+  '1': 'TaskEvent',
+  '2': [
+    {
+      '1': 'type',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.task.TaskEventType',
+      '10': 'type'
+    },
+    {'1': 'tasks', '3': 2, '4': 3, '5': 11, '6': '.task.Task', '10': 'tasks'},
+    {'1': 'removed_ids', '3': 3, '4': 3, '5': 9, '10': 'removedIds'},
+  ],
+};
+
+/// Descriptor for `TaskEvent`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List taskEventDescriptor = $convert.base64Decode(
+    'CglUYXNrRXZlbnQSJwoEdHlwZRgBIAEoDjITLnRhc2suVGFza0V2ZW50VHlwZVIEdHlwZRIgCg'
+    'V0YXNrcxgCIAMoCzIKLnRhc2suVGFza1IFdGFza3MSHwoLcmVtb3ZlZF9pZHMYAyADKAlSCnJl'
+    'bW92ZWRJZHM=');
 
 @$core.Deprecated('Use createTaskRequestDescriptor instead')
 const CreateTaskRequest$json = {

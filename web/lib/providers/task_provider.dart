@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:mdm/apis/mdm/events.dart';
 import 'package:mdm/apis/mdm/task.dart';
 import 'package:mdm/models/vo/task.pb.dart' hide DownloadStats;
 import 'package:mdm/models/task.dart';
@@ -28,16 +29,18 @@ extension FilterTypeExtension on FilterType {
   };
 }
 
-const _refreshInterval = Duration(seconds: 5);
+const _reconnectDelay = Duration(seconds: 3);
 
 class TaskProvider extends ChangeNotifier {
   List<Task> _tasks = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _error;
   FilterType _currentFilter = FilterType.dlRunning;
   String _searchQuery = '';
   Set<String> _selectedTaskIds = {};
-  StreamSubscription? _pollSubscription;
+  StreamSubscription? _eventSubscription;
+  Timer? _reconnectTimer;
+  bool _disposed = false;
 
   List<Task> get tasks => _filteredTasks;
   bool get isLoading => _isLoading;
@@ -64,40 +67,71 @@ class TaskProvider extends ChangeNotifier {
     return filtered;
   }
 
-  Future<void> initialize() async {
-    await fetchTasks();
-    _startPolling();
+  void initialize() {
+    _startEvents();
   }
 
-  Future<void> fetchTasks() async {
+  /// 手动重连（错误重试按钮）
+  void retry() {
+    if (_disposed) return;
+    _reconnectTimer?.cancel();
     _isLoading = true;
     _error = null;
     notifyListeners();
-
-    try {
-      _tasks = (await listTasks()).tasks;
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    _startEvents();
   }
 
-  void _startPolling() {
-    _pollSubscription?.cancel();
-    _pollSubscription = Stream.periodic(_refreshInterval, (_) => listTasks()).listen(
-      (futureResp) async {
-        try {
-          _tasks = (await futureResp).tasks;
-          _error = null;
-          notifyListeners();
-        } catch (e) {
-          _error = e.toString();
-          notifyListeners();
-        }
+  void _startEvents() {
+    _reconnectTimer?.cancel();
+    _eventSubscription?.cancel();
+    _eventSubscription = subscribeTaskEvents().listen(
+      (event) {
+        _applyEvent(event);
+        notifyListeners();
       },
+      onError: (e) {
+        _error = e.toString();
+        _isLoading = false;
+        notifyListeners();
+        _scheduleReconnect();
+      },
+      onDone: () {
+        _scheduleReconnect();
+      },
+      cancelOnError: true,
     );
+  }
+
+  void _applyEvent(TaskEvent event) {
+    switch (event.type) {
+      case TaskEventType.TetFull:
+        _tasks = event.tasks;
+      case TaskEventType.TetUpsert:
+        final byId = {for (final t in _tasks) t.id: t};
+        for (final t in event.tasks) {
+          byId[t.id] = t;
+        }
+        for (final id in event.removedIds) {
+          byId.remove(id);
+        }
+        _tasks = byId.values.toList();
+      case TaskEventType.TetUnknown:
+        return;
+    }
+    _tasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    _isLoading = false;
+    _error = null;
+  }
+
+  void _scheduleReconnect() {
+    if (_disposed) return;
+    _eventSubscription?.cancel();
+    _eventSubscription = null;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(_reconnectDelay, () {
+      if (_disposed) return;
+      _startEvents();
+    });
   }
 
   Future<void> deleteSelected({bool deleteFile = false}) async {
@@ -145,7 +179,9 @@ class TaskProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _pollSubscription?.cancel();
+    _disposed = true;
+    _reconnectTimer?.cancel();
+    _eventSubscription?.cancel();
     super.dispose();
   }
 }

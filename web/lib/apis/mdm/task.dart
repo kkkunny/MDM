@@ -2,14 +2,6 @@ import 'package:mdm/configs/api.dart';
 import 'package:mdm/apis/mdm/client.dart';
 import 'package:mdm/models/vo/task.pb.dart';
 
-Future<ListTasksResponse> listTasks() async {
-  final data = await request(
-    'GET',
-    '${getApiBaseUrl()}/api/task/list',
-  );
-  return ListTasksResponse.create()..mergeFromProto3Json(data);
-}
-
 Future<void> operateTasks(OperateTasksRequest req) async {
   await request(
     'POST',

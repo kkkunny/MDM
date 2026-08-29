@@ -60,6 +60,29 @@ class TaskPhase extends $pb.ProtobufEnum {
   const TaskPhase._(super.value, super.name);
 }
 
+/// 任务变更事件类型
+class TaskEventType extends $pb.ProtobufEnum {
+  static const TaskEventType TetUnknown =
+      TaskEventType._(0, _omitEnumNames ? '' : 'TetUnknown');
+  static const TaskEventType TetFull =
+      TaskEventType._(1, _omitEnumNames ? '' : 'TetFull');
+  static const TaskEventType TetUpsert =
+      TaskEventType._(2, _omitEnumNames ? '' : 'TetUpsert');
+
+  static const $core.List<TaskEventType> values = <TaskEventType>[
+    TetUnknown,
+    TetFull,
+    TetUpsert,
+  ];
+
+  static final $core.List<TaskEventType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 2);
+  static TaskEventType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const TaskEventType._(super.value, super.name);
+}
+
 /// 操作行为
 class Operate extends $pb.ProtobufEnum {
   static const Operate OpUnknown =

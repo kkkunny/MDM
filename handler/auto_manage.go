@@ -18,6 +18,7 @@ func AutoManage(c *echo.Context) error {
 		if err != nil {
 			_ = config.Logger.Error(err)
 		}
+		taskSvr.NotifyTasksChanged()
 	}()
 
 	return c.String(http.StatusOK, http.StatusText(http.StatusOK))

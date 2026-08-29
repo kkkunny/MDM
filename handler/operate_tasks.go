@@ -17,7 +17,7 @@ import (
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/dto"
 	"github.com/kkkunny/MDM/model/vo"
-	"github.com/kkkunny/MDM/service/task"
+	taskSvr "github.com/kkkunny/MDM/service/task"
 	"github.com/kkkunny/MDM/util"
 )
 
@@ -65,7 +65,7 @@ func OperateTasks(c *echo.Context) error {
 		return err
 	}
 
-	_, _ = task.GetAllTasks(ctx, true)
+	taskSvr.NotifyTasksChanged()
 
 	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
 }

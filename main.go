@@ -37,6 +37,7 @@ func route(root *echo.Group) {
 		task := api.Group("/task")
 		{
 			task.GET("/list", handler.ListTasks)
+			task.GET("/events", handler.TaskEvents)
 			task.POST("/create", handler.CreateTask)
 			task.POST("/operate", handler.OperateTasks)
 			task.POST("/auto_manage", handler.AutoManage)
@@ -66,6 +67,7 @@ func main() {
 	svr.JSONSerializer = new(util.ProtobufJsonEchoSerializer)
 
 	route(svr.Group(""))
+	go taskSvr.StartPushLoop(context.Background())
 	go cronjob()
 
 	if err := stlerr.ErrorWrap(svr.Start(fmt.Sprintf(":%d", stlval.If(config.Release, 80, 8080)))); err != nil {

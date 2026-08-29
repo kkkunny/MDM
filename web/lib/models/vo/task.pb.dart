@@ -434,6 +434,77 @@ class ListTasksResponse extends $pb.GeneratedMessage {
   $pb.PbList<Task> get tasks => $_getList(0);
 }
 
+/// 任务变更事件
+class TaskEvent extends $pb.GeneratedMessage {
+  factory TaskEvent({
+    TaskEventType? type,
+    $core.Iterable<Task>? tasks,
+    $core.Iterable<$core.String>? removedIds,
+  }) {
+    final result = create();
+    if (type != null) result.type = type;
+    if (tasks != null) result.tasks.addAll(tasks);
+    if (removedIds != null) result.removedIds.addAll(removedIds);
+    return result;
+  }
+
+  TaskEvent._();
+
+  factory TaskEvent.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory TaskEvent.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'TaskEvent',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'task'),
+      createEmptyInstance: create)
+    ..e<TaskEventType>(1, _omitFieldNames ? '' : 'type', $pb.PbFieldType.OE,
+        defaultOrMaker: TaskEventType.TetUnknown,
+        valueOf: TaskEventType.valueOf,
+        enumValues: TaskEventType.values)
+    ..pc<Task>(2, _omitFieldNames ? '' : 'tasks', $pb.PbFieldType.PM,
+        subBuilder: Task.create)
+    ..pPS(3, _omitFieldNames ? '' : 'removedIds')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  TaskEvent clone() => TaskEvent()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  TaskEvent copyWith(void Function(TaskEvent) updates) =>
+      super.copyWith((message) => updates(message as TaskEvent)) as TaskEvent;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TaskEvent create() => TaskEvent._();
+  @$core.override
+  TaskEvent createEmptyInstance() => create();
+  static $pb.PbList<TaskEvent> createRepeated() => [] as $pb.PbList<TaskEvent>;
+  @$core.pragma('dart2js:noInline')
+  static TaskEvent getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TaskEvent>(create);
+  static TaskEvent? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  TaskEventType get type => $_getN(0);
+  @$pb.TagNumber(1)
+  set type(TaskEventType value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearType() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $pb.PbList<Task> get tasks => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $pb.PbList<$core.String> get removedIds => $_getList(2);
+}
+
 class CreateTaskRequest extends $pb.GeneratedMessage {
   factory CreateTaskRequest({
     $core.Iterable<$core.String>? links,

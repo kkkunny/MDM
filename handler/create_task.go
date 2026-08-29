@@ -15,6 +15,7 @@ import (
 	"github.com/kkkunny/MDM/dal/db/po"
 	"github.com/kkkunny/MDM/dal/xl"
 	"github.com/kkkunny/MDM/model/vo"
+	taskSvr "github.com/kkkunny/MDM/service/task"
 	"github.com/kkkunny/MDM/service/xltorrent"
 	"github.com/kkkunny/MDM/util"
 )
@@ -60,6 +61,8 @@ func CreateTask(c *echo.Context) error {
 			_ = config.Logger.Warn(err)
 		}
 	}()
+
+	taskSvr.NotifyTasksChanged()
 
 	return c.JSON(http.StatusOK, &vo.CreateTaskResponse{
 		Id: xlTask.ID,

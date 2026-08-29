@@ -171,7 +171,7 @@ class TaskListPanel extends StatelessWidget {
                 Text('加载任务失败', style: TextStyle(color: Colors.black38, fontSize: 16)),
                 const SizedBox(height: 8),
                 TextButton(
-                  onPressed: () => provider.fetchTasks(),
+                  onPressed: () => provider.retry(),
                   child: const Text('重试'),
                 ),
               ],

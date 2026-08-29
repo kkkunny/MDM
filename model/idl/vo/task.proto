@@ -54,6 +54,20 @@ message ListTasksResponse {
   repeated Task tasks = 1;
 }
 
+// 任务变更事件类型
+enum TaskEventType {
+  TetUnknown = 0;
+  TetFull = 1;    // 全量快照
+  TetUpsert = 2;  // 增量变更
+}
+
+// 任务变更事件
+message TaskEvent {
+  TaskEventType type = 1;
+  repeated Task tasks = 2;
+  repeated string removed_ids = 3;  // type=upsert 时有效，被删除的任务 id
+}
+
 message CreateTaskRequest {
   repeated string links = 1;  // 下载链接，至少需要存在一个链接，其他的作为备份链接
   string name = 10;

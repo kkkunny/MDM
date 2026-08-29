@@ -20,7 +20,9 @@ import (
 	"github.com/kkkunny/MDM/model/dto"
 )
 
-const cacheDuration = time.Second * 2
+const (
+	maxCacheDuration = time.Second * 3
+)
 
 var tasksCache = &_TasksCache{lock: stlsync.NewReentrantRWLock()}
 
@@ -50,10 +52,10 @@ func (tc *_TasksCache) tryGet() ([]dto.Task, bool) {
 	tc.lock.RLock()
 	defer tc.lock.RUnlock()
 
-	if time.Since(tc.updateAt) > cacheDuration {
+	if time.Since(tc.updateAt) > maxCacheDuration {
 		return nil, false
 	}
-	return tc.data, true
+	return stlslices.Clone(tc.data), true
 }
 
 func (tc *_TasksCache) GetLatest(ctx context.Context) ([]dto.Task, error) {
@@ -121,5 +123,5 @@ func (tc *_TasksCache) GetLatest(ctx context.Context) ([]dto.Task, error) {
 
 	tc.data = tasks
 	tc.updateAt = time.Now()
-	return tc.data, nil
+	return stlslices.Clone(tc.data), nil
 }
